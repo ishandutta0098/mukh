@@ -92,11 +92,105 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
-<section id="mukh-detection-models-ultralight-ultralight-detector-module">
-<h2>mukh.detection.models.ultralight.ultralight_detector module<a class="headerlink" href="#mukh-detection-models-ultralight-ultralight-detector-module" title="Link to this heading"></a></h2>
+<section id="module-mukh.detection.models.ultralight.ultralight_detector">
+<span id="mukh-detection-models-ultralight-ultralight-detector-module"></span><h2>mukh.detection.models.ultralight.ultralight_detector module<a class="headerlink" href="#module-mukh.detection.models.ultralight.ultralight_detector" title="Link to this heading"></a></h2>
+<p>Ultra-Light face detection model implementation.</p>
+<p>This module implements the Ultra-Light-Fast-Generic-Face-Detector-1MB.
+Adapted from: <a class="reference external" href="https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB">https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB</a></p>
+<p>Original implementation by Linzaer</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.ultralight_detector.UltralightDetector">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.ultralight_detector.</span></span><span class="sig-name descname"><span class="pre">UltralightDetector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'RFB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">320</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mukh/checkpoints/detection/ultralight/pretrained/version-RFB-320.pth'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mukh/checkpoints/detection/ultralight/voc-model-labels.txt'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/ultralight_detector.html#UltralightDetector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.ultralight_detector.UltralightDetector" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mukh.detection.models.html#mukh.detection.models.base_detector.BaseFaceDetector" title="mukh.detection.models.base_detector.BaseFaceDetector"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseFaceDetector</span></code></a></p>
+<p>Ultra-Light face detector implementation.</p>
+<p>A 1MB size face detector optimized for edge devices. Provides bounding
+box detection without landmarks.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.device">
+<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.device" title="Link to this definition"></a></dt>
+<dd><p>PyTorch device (CPU/CUDA) for model execution</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.input_size">
+<span class="sig-name descname"><span class="pre">input_size</span></span><a class="headerlink" href="#mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.input_size" title="Link to this definition"></a></dt>
+<dd><p>Input resolution for the model</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.net">
+<span class="sig-name descname"><span class="pre">net</span></span><a class="headerlink" href="#mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.net" title="Link to this definition"></a></dt>
+<dd><p>Neural network model</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.predictor">
+<span class="sig-name descname"><span class="pre">predictor</span></span><a class="headerlink" href="#mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.predictor" title="Link to this definition"></a></dt>
+<dd><p>Detection predictor instance</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.confidence_threshold">
+<span class="sig-name descname"><span class="pre">confidence_threshold</span></span><a class="headerlink" href="#mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.confidence_threshold" title="Link to this definition"></a></dt>
+<dd><p>Minimum confidence for valid detections</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.detect">
+<span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mukh.core.html#mukh.core.types.FaceDetection" title="mukh.core.types.FaceDetection"><span class="pre">FaceDetection</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/ultralight_detector.html#UltralightDetector.detect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.detect" title="Link to this definition"></a></dt>
+<dd><p>Detects faces in the given image using Ultra-Light model.</p>
+<p>The image is resized to self.input_size for inference and results
+are scaled back to original image size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_path</strong> – Path to the input image.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>List of detected faces, each containing:</dt><dd><ul class="simple">
+<li><p>bbox: BoundingBox with coordinates and confidence</p></li>
+<li><p>landmarks: None (Ultralight doesn’t provide landmarks)</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="mukh.core.html#mukh.core.types.FaceDetection" title="mukh.core.types.FaceDetection">FaceDetection</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.detect_with_landmarks">
+<span class="sig-name descname"><span class="pre">detect_with_landmarks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mukh.core.html#mukh.core.types.FaceDetection" title="mukh.core.types.FaceDetection"><span class="pre">FaceDetection</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/ultralight_detector.html#UltralightDetector.detect_with_landmarks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.ultralight_detector.UltralightDetector.detect_with_landmarks" title="Link to this definition"></a></dt>
+<dd><p>Detects faces and returns annotated image.</p>
+<p>Note: This model does not provide facial landmarks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_path</strong> – Path to the input image.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Contains:</dt><dd><ul class="simple">
+<li><p>List[FaceDetection]: List of detected faces</p></li>
+<li><p>np.ndarray: Copy of input image with detections drawn</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<section id="module-mukh.detection.models.ultralight">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mukh.detection.models.ultralight" title="Link to this heading"></a></h2>
 </section>
 </section>
 

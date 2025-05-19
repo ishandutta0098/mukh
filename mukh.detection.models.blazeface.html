@@ -92,14 +92,275 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
-<section id="mukh-detection-models-blazeface-blazeface-detector-module">
-<h2>mukh.detection.models.blazeface.blazeface_detector module<a class="headerlink" href="#mukh-detection-models-blazeface-blazeface-detector-module" title="Link to this heading"></a></h2>
+<section id="module-mukh.detection.models.blazeface.blazeface_detector">
+<span id="mukh-detection-models-blazeface-blazeface-detector-module"></span><h2>mukh.detection.models.blazeface.blazeface_detector module<a class="headerlink" href="#module-mukh.detection.models.blazeface.blazeface_detector" title="Link to this heading"></a></h2>
+<p>BlazeFace face detection model implementation.</p>
+<p>This module implements the BlazeFace face detection model from MediaPipe.
+Adapted from: <a class="reference external" href="https://github.com/hollance/BlazeFace-PyTorch">https://github.com/hollance/BlazeFace-PyTorch</a>
+Original implementation by M.I. Hollemans.</p>
+<p>The model is optimized for mobile devices and provides both bounding box
+detection and 6 facial landmarks.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_detector.BlazeFaceDetector">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.blazeface.blazeface_detector.</span></span><span class="sig-name descname"><span class="pre">BlazeFaceDetector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mukh/detection/models/blazeface/blazeface.pth'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchors_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mukh/detection/models/blazeface/anchors.npy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_detector.html#BlazeFaceDetector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_detector.BlazeFaceDetector" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mukh.detection.models.html#mukh.detection.models.base_detector.BaseFaceDetector" title="mukh.detection.models.base_detector.BaseFaceDetector"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseFaceDetector</span></code></a></p>
+<p>BlazeFace face detector implementation.</p>
+<p>A lightweight face detector that provides both bounding boxes and facial
+landmarks. Optimized for mobile devices.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_detector.BlazeFaceDetector.device">
+<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_detector.BlazeFaceDetector.device" title="Link to this definition"></a></dt>
+<dd><p>PyTorch device (CPU/CUDA) for model execution</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_detector.BlazeFaceDetector.net">
+<span class="sig-name descname"><span class="pre">net</span></span><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_detector.BlazeFaceDetector.net" title="Link to this definition"></a></dt>
+<dd><p>BlazeFace neural network model</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_detector.BlazeFaceDetector.confidence_threshold">
+<span class="sig-name descname"><span class="pre">confidence_threshold</span></span><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_detector.BlazeFaceDetector.confidence_threshold" title="Link to this definition"></a></dt>
+<dd><p>Minimum confidence for valid detections</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_detector.BlazeFaceDetector.detect">
+<span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mukh.core.html#mukh.core.types.FaceDetection" title="mukh.core.types.FaceDetection"><span class="pre">FaceDetection</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_detector.html#BlazeFaceDetector.detect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_detector.BlazeFaceDetector.detect" title="Link to this definition"></a></dt>
+<dd><p>Detects faces in the given image.</p>
+<p>The image is resized to 128x128 pixels for inference and the results
+are scaled back to the original image size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_path</strong> – Path to the input image.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>List of detected faces, each containing:</dt><dd><ul class="simple">
+<li><p>bbox: BoundingBox with coordinates and confidence</p></li>
+<li><p>landmarks: Array of 6 facial keypoints</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="mukh.core.html#mukh.core.types.FaceDetection" title="mukh.core.types.FaceDetection">FaceDetection</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_detector.BlazeFaceDetector.detect_with_landmarks">
+<span class="sig-name descname"><span class="pre">detect_with_landmarks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="mukh.core.html#mukh.core.types.FaceDetection" title="mukh.core.types.FaceDetection"><span class="pre">FaceDetection</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_detector.html#BlazeFaceDetector.detect_with_landmarks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_detector.BlazeFaceDetector.detect_with_landmarks" title="Link to this definition"></a></dt>
+<dd><p>Detects faces and returns annotated image with landmarks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_path</strong> – Path to the input image.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Contains:</dt><dd><ul class="simple">
+<li><p>List[FaceDetection]: List of detected faces</p></li>
+<li><p>np.ndarray: Copy of input image with detections drawn</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="mukh-detection-models-blazeface-blazeface-torch-module">
-<h2>mukh.detection.models.blazeface.blazeface_torch module<a class="headerlink" href="#mukh-detection-models-blazeface-blazeface-torch-module" title="Link to this heading"></a></h2>
+<section id="module-mukh.detection.models.blazeface.blazeface_torch">
+<span id="mukh-detection-models-blazeface-blazeface-torch-module"></span><h2>mukh.detection.models.blazeface.blazeface_torch module<a class="headerlink" href="#module-mukh.detection.models.blazeface.blazeface_torch" title="Link to this heading"></a></h2>
+<p>BlazeFace PyTorch implementation adapted from:
+<a class="reference external" href="https://github.com/hollance/BlazeFace-PyTorch">https://github.com/hollance/BlazeFace-PyTorch</a></p>
+<p>Original implementation by M.I. Hollemans</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.BlazeBlock">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.blazeface.blazeface_torch.</span></span><span class="sig-name descname"><span class="pre">BlazeBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#BlazeBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.BlazeBlock" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.BlazeBlock.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#BlazeBlock.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.BlazeBlock.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.BlazeFace">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.blazeface.blazeface_torch.</span></span><span class="sig-name descname"><span class="pre">BlazeFace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">back_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#BlazeFace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.BlazeFace" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>The BlazeFace face detection model from MediaPipe.</p>
+<p>The version from MediaPipe is simpler than the one in the paper;
+it does not use the “double” BlazeBlocks.</p>
+<p>Because we won’t be training this model, it doesn’t need to have
+batchnorm layers. These have already been “folded” into the conv
+weights by TFLite.</p>
+<p>The conversion to PyTorch is fairly straightforward, but there are
+some small differences between TFLite and PyTorch in how they handle
+padding on conv layers with stride 2.</p>
+<p>This version works on batches, while the MediaPipe version can only
+handle a single image at a time.</p>
+<p>Based on code from <a class="reference external" href="https://github.com/tkat0/PyTorch_BlazeFace/">https://github.com/tkat0/PyTorch_BlazeFace/</a> and
+<a class="reference external" href="https://github.com/google/mediapipe/">https://github.com/google/mediapipe/</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.BlazeFace.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#BlazeFace.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.BlazeFace.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.BlazeFace.load_anchors">
+<span class="sig-name descname"><span class="pre">load_anchors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#BlazeFace.load_anchors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.BlazeFace.load_anchors" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.BlazeFace.load_weights">
+<span class="sig-name descname"><span class="pre">load_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#BlazeFace.load_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.BlazeFace.load_weights" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.BlazeFace.predict_on_batch">
+<span class="sig-name descname"><span class="pre">predict_on_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#BlazeFace.predict_on_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.BlazeFace.predict_on_batch" title="Link to this definition"></a></dt>
+<dd><p>Makes a prediction on a batch of images.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – a NumPy array of shape (b, H, W, 3) or a PyTorch tensor of
+shape (b, 3, H, W). The height and width should be 128 pixels.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list containing a tensor of face detections for each image in
+the batch. If no faces are found for an image, returns a tensor
+of shape (0, 17).</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Each face detection is a PyTorch tensor consisting of 17 numbers:</dt><dd><ul class="simple">
+<li><p>ymin, xmin, ymax, xmax</p></li>
+<li><p>x,y-coordinates for the 6 keypoints</p></li>
+<li><p>confidence score</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.BlazeFace.predict_on_image">
+<span class="sig-name descname"><span class="pre">predict_on_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#BlazeFace.predict_on_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.BlazeFace.predict_on_image" title="Link to this definition"></a></dt>
+<dd><p>Makes a prediction on a single image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>img</strong> – a NumPy array of shape (H, W, 3) or a PyTorch tensor of
+shape (3, H, W). The image’s height and width should be
+128 pixels.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tensor with face detections.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.FinalBlazeBlock">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.blazeface.blazeface_torch.</span></span><span class="sig-name descname"><span class="pre">FinalBlazeBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#FinalBlazeBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.FinalBlazeBlock" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.FinalBlazeBlock.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#FinalBlazeBlock.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.FinalBlazeBlock.forward" title="Link to this definition"></a></dt>
+<dd><p>Define the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.intersect">
+<span class="sig-prename descclassname"><span class="pre">mukh.detection.models.blazeface.blazeface_torch.</span></span><span class="sig-name descname"><span class="pre">intersect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#intersect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.intersect" title="Link to this definition"></a></dt>
+<dd><p>We resize both tensors to [A,B,2] without new malloc:
+[A,2] -&gt; [A,1,2] -&gt; [A,B,2]
+[B,2] -&gt; [1,B,2] -&gt; [A,B,2]
+Then we compute the area of intersect between box_a and box_b.
+:param box_a: (tensor) bounding boxes, Shape: [A,4].
+:param box_b: (tensor) bounding boxes, Shape: [B,4].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[A,B].</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>(tensor) intersection area, Shape</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.jaccard">
+<span class="sig-prename descclassname"><span class="pre">mukh.detection.models.blazeface.blazeface_torch.</span></span><span class="sig-name descname"><span class="pre">jaccard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#jaccard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.jaccard" title="Link to this definition"></a></dt>
+<dd><p>Compute the jaccard overlap of two sets of boxes.  The jaccard overlap
+is simply the intersection over union of two boxes.  Here we operate on
+ground truth boxes and default boxes.
+E.g.:</p>
+<blockquote>
+<div><p>A ∩ B / A ∪ B = A ∩ B / (area(A) + area(B) - A ∩ B)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>box_a</strong> – (tensor) Ground truth bounding boxes, Shape: [num_objects,4]</p></li>
+<li><p><strong>box_b</strong> – (tensor) Prior boxes from priorbox layers, Shape: [num_priors,4]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(tensor) Shape: [box_a.size(0), box_b.size(0)]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jaccard overlap</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mukh.detection.models.blazeface.blazeface_torch.overlap_similarity">
+<span class="sig-prename descclassname"><span class="pre">mukh.detection.models.blazeface.blazeface_torch.</span></span><span class="sig-name descname"><span class="pre">overlap_similarity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_boxes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/blazeface/blazeface_torch.html#overlap_similarity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.blazeface.blazeface_torch.overlap_similarity" title="Link to this definition"></a></dt>
+<dd><p>Computes the IOU between a bounding box and set of other boxes.</p>
+</dd></dl>
+
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<section id="module-mukh.detection.models.blazeface">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mukh.detection.models.blazeface" title="Link to this heading"></a></h2>
 </section>
 </section>
 
