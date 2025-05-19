@@ -133,11 +133,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">confidence_threshold</span><span class="p">)</span>
 
-         <span class="c1"># Use default paths from package if not provided</span>
+        <span class="c1"># Use default paths from package if not provided</span>
         <span class="k">if</span> <span class="n">weights_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">weights_path</span> <span class="o">=</span> <span class="n">resource_filename</span><span class="p">(</span><span class="s1">&#39;mukh&#39;</span><span class="p">,</span> <span class="s1">&#39;detection/models/ultralight/pretrained/version-RFB-320.pth&#39;</span><span class="p">)</span>
+            <span class="n">weights_path</span> <span class="o">=</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="s2">&quot;mukh&quot;</span><span class="p">,</span> <span class="s2">&quot;detection/models/ultralight/pretrained/version-RFB-320.pth&quot;</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="n">labels_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">labels_path</span> <span class="o">=</span> <span class="n">resource_filename</span><span class="p">(</span><span class="s1">&#39;mukh&#39;</span><span class="p">,</span> <span class="s1">&#39;detection/models/ultralight/voc-model-labels.txt&#39;</span><span class="p">)</span>
+            <span class="n">labels_path</span> <span class="o">=</span> <span class="n">resource_filename</span><span class="p">(</span>
+                <span class="s2">&quot;mukh&quot;</span><span class="p">,</span> <span class="s2">&quot;detection/models/ultralight/voc-model-labels.txt&quot;</span>
+            <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda:0&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">input_size</span> <span class="o">=</span> <span class="n">input_size</span>
