@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mukh.detection.models.ultralight.vision.utils.box_utils &mdash; mukh 0.0.361 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../../_static/documentation_options.js?v=662e4a1b"></script>
+      <script src="../../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../../index.html" class="icon icon-home">
+            mukh
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../modules.html">mukh</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../index.html">mukh</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mukh.detection.models.ultralight.vision.utils.box_utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mukh.detection.models.ultralight.vision.utils.box_utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">UltraLight PyTorch implementation adapted from:</span>
+<span class="sd">https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB</span>
+
+<span class="sd">Original implementation by Linzaer</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+
+
+<div class="viewcode-block" id="generate_priors">
+<a class="viewcode-back" href="../../../../../../../mukh.detection.models.ultralight.vision.utils.html#mukh.detection.models.ultralight.vision.utils.box_utils.generate_priors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_priors</span><span class="p">(</span>
+    <span class="n">feature_map_list</span><span class="p">,</span> <span class="n">shrinkage_list</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">min_boxes</span><span class="p">,</span> <span class="n">clamp</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+    <span class="n">priors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_map_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+        <span class="n">scale_w</span> <span class="o">=</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">shrinkage_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">scale_h</span> <span class="o">=</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">shrinkage_list</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">feature_map_list</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">index</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">feature_map_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">index</span><span class="p">]):</span>
+                <span class="n">x_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale_w</span>
+                <span class="n">y_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">j</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale_h</span>
+
+                <span class="k">for</span> <span class="n">min_box</span> <span class="ow">in</span> <span class="n">min_boxes</span><span class="p">[</span><span class="n">index</span><span class="p">]:</span>
+                    <span class="n">w</span> <span class="o">=</span> <span class="n">min_box</span> <span class="o">/</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">h</span> <span class="o">=</span> <span class="n">min_box</span> <span class="o">/</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">priors</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x_center</span><span class="p">,</span> <span class="n">y_center</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;priors nums:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">priors</span><span class="p">)))</span>
+    <span class="n">priors</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">priors</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clamp</span><span class="p">:</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">priors</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">priors</span></div>
+
+
+
+<div class="viewcode-block" id="convert_locations_to_boxes">
+<a class="viewcode-back" href="../../../../../../../mukh.detection.models.ultralight.vision.utils.html#mukh.detection.models.ultralight.vision.utils.box_utils.convert_locations_to_boxes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_locations_to_boxes</span><span class="p">(</span><span class="n">locations</span><span class="p">,</span> <span class="n">priors</span><span class="p">,</span> <span class="n">center_variance</span><span class="p">,</span> <span class="n">size_variance</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert regressional location results of SSD into boxes in the form of (center_x, center_y, h, w).</span>
+
+<span class="sd">    The conversion:</span>
+<span class="sd">        $$predicted\_center * center_variance = \frac {real\_center - prior\_center} {prior\_hw}$$</span>
+<span class="sd">        $$exp(predicted\_hw * size_variance) = \frac {real\_hw} {prior\_hw}$$</span>
+<span class="sd">    We do it in the inverse direction here.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        locations (batch_size, num_priors, 4): the regression output of SSD. It will contain the outputs as well.</span>
+<span class="sd">        priors (num_priors, 4) or (batch_size/1, num_priors, 4): prior boxes.</span>
+<span class="sd">        center_variance: a float used to change the scale of center.</span>
+<span class="sd">        size_variance: a float used to change of scale of size.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        boxes:  priors: [[center_x, center_y, h, w]]. All the values</span>
+<span class="sd">            are relative to the image size.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># priors can have one dimension less.</span>
+    <span class="k">if</span> <span class="n">priors</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">locations</span><span class="o">.</span><span class="n">dim</span><span class="p">():</span>
+        <span class="n">priors</span> <span class="o">=</span> <span class="n">priors</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">locations</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">center_variance</span> <span class="o">*</span> <span class="n">priors</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">+</span> <span class="n">priors</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">locations</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">*</span> <span class="n">size_variance</span><span class="p">)</span> <span class="o">*</span> <span class="n">priors</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:],</span>
+        <span class="p">],</span>
+        <span class="n">dim</span><span class="o">=</span><span class="n">locations</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="convert_boxes_to_locations">
+<a class="viewcode-back" href="../../../../../../../mukh.detection.models.ultralight.vision.utils.html#mukh.detection.models.ultralight.vision.utils.box_utils.convert_boxes_to_locations">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_boxes_to_locations</span><span class="p">(</span>
+    <span class="n">center_form_boxes</span><span class="p">,</span> <span class="n">center_form_priors</span><span class="p">,</span> <span class="n">center_variance</span><span class="p">,</span> <span class="n">size_variance</span>
+<span class="p">):</span>
+    <span class="c1"># priors can have one dimension less</span>
+    <span class="k">if</span> <span class="n">center_form_priors</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">center_form_boxes</span><span class="o">.</span><span class="n">dim</span><span class="p">():</span>
+        <span class="n">center_form_priors</span> <span class="o">=</span> <span class="n">center_form_priors</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">(</span><span class="n">center_form_boxes</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">center_form_priors</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+            <span class="o">/</span> <span class="n">center_form_priors</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span>
+            <span class="o">/</span> <span class="n">center_variance</span><span class="p">,</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">center_form_boxes</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="n">center_form_priors</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:])</span>
+            <span class="o">/</span> <span class="n">size_variance</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">dim</span><span class="o">=</span><span class="n">center_form_boxes</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="area_of">
+<a class="viewcode-back" href="../../../../../../../mukh.detection.models.ultralight.vision.utils.html#mukh.detection.models.ultralight.vision.utils.box_utils.area_of">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">area_of</span><span class="p">(</span><span class="n">left_top</span><span class="p">,</span> <span class="n">right_bottom</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the areas of rectangles given two corners.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        left_top (N, 2): left top corner.</span>
+<span class="sd">        right_bottom (N, 2): right bottom corner.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        area (N): return the area.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hw</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">right_bottom</span> <span class="o">-</span> <span class="n">left_top</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">hw</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">hw</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="iou_of">
+<a class="viewcode-back" href="../../../../../../../mukh.detection.models.ultralight.vision.utils.html#mukh.detection.models.ultralight.vision.utils.box_utils.iou_of">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">iou_of</span><span class="p">(</span><span class="n">boxes0</span><span class="p">,</span> <span class="n">boxes1</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return intersection-over-union (Jaccard index) of boxes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        boxes0 (N, 4): ground truth boxes.</span>
+<span class="sd">        boxes1 (N or 1, 4): predicted boxes.</span>
+<span class="sd">        eps: a small number to avoid 0 as denominator.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        iou (N): IoU values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">overlap_left_top</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">boxes0</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">boxes1</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">overlap_right_bottom</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">boxes0</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:],</span> <span class="n">boxes1</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:])</span>
+
+    <span class="n">overlap_area</span> <span class="o">=</span> <span class="n">area_of</span><span class="p">(</span><span class="n">overlap_left_top</span><span class="p">,</span> <span class="n">overlap_right_bottom</span><span class="p">)</span>
+    <span class="n">area0</span> <span class="o">=</span> <span class="n">area_of</span><span class="p">(</span><span class="n">boxes0</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">boxes0</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:])</span>
+    <span class="n">area1</span> <span class="o">=</span> <span class="n">area_of</span><span class="p">(</span><span class="n">boxes1</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">boxes1</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:])</span>
+    <span class="k">return</span> <span class="n">overlap_area</span> <span class="o">/</span> <span class="p">(</span><span class="n">area0</span> <span class="o">+</span> <span class="n">area1</span> <span class="o">-</span> <span class="n">overlap_area</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="assign_priors">
+<a class="viewcode-back" href="../../../../../../../mukh.detection.models.ultralight.vision.utils.html#mukh.detection.models.ultralight.vision.utils.box_utils.assign_priors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">assign_priors</span><span class="p">(</span><span class="n">gt_boxes</span><span class="p">,</span> <span class="n">gt_labels</span><span class="p">,</span> <span class="n">corner_form_priors</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assign ground truth boxes and targets to priors.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gt_boxes (num_targets, 4): ground truth boxes.</span>
+<span class="sd">        gt_labels (num_targets): labels of targets.</span>
+<span class="sd">        priors (num_priors, 4): corner form priors</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        boxes (num_priors, 4): real values for priors.</span>
+<span class="sd">        labels (num_priros): labels for priors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># size: num_priors x num_targets</span>
+    <span class="n">ious</span> <span class="o">=</span> <span class="n">iou_of</span><span class="p">(</span><span class="n">gt_boxes</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">corner_form_priors</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    <span class="c1"># size: num_priors</span>
+    <span class="n">best_target_per_prior</span><span class="p">,</span> <span class="n">best_target_per_prior_index</span> <span class="o">=</span> <span class="n">ious</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># size: num_targets</span>
+    <span class="n">best_prior_per_target</span><span class="p">,</span> <span class="n">best_prior_per_target_index</span> <span class="o">=</span> <span class="n">ious</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">target_index</span><span class="p">,</span> <span class="n">prior_index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">best_prior_per_target_index</span><span class="p">):</span>
+        <span class="n">best_target_per_prior_index</span><span class="p">[</span><span class="n">prior_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_index</span>
+    <span class="c1"># 2.0 is used to make sure every target has a prior assigned</span>
+    <span class="n">best_target_per_prior</span><span class="o">.</span><span class="n">index_fill_</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">best_prior_per_target_index</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="c1"># size: num_priors</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">gt_labels</span><span class="p">[</span><span class="n">best_target_per_prior_index</span><span class="p">]</span>
+    <span class="n">labels</span><span class="p">[</span><span class="n">best_target_per_prior</span> <span class="o">&lt;</span> <span class="n">iou_threshold</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># the backgournd id</span>
+    <span class="n">boxes</span> <span class="o">=</span> <span class="n">gt_boxes</span><span class="p">[</span><span class="n">best_target_per_prior_index</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">boxes</span><span class="p">,</span> <span class="n">labels</span></div>
+
+
+
+<div class="viewcode-block" id="hard_negative_mining">
+<a class="viewcode-back" href="../../../../../../../mukh.detection.models.ultralight.vision.utils.html#mukh.detection.models.ultralight.vision.utils.box_utils.hard_negative_mining">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hard_negative_mining</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">neg_pos_ratio</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    It used to suppress the presence of a large number of negative prediction.</span>
+<span class="sd">    It works on image level not batch level.</span>
+<span class="sd">    For any example/image, it keeps all the positive predictions and</span>
+<span class="sd">     cut the number of negative predictions to make sure the ratio</span>
+<span class="sd">     between the negative examples and positive examples is no more</span>
+<span class="sd">     the given ratio for an image.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        loss (N, num_priors): the loss for each example.</span>
+<span class="sd">        labels (N, num_priors): the labels.</span>
+<span class="sd">        neg_pos_ratio:  the ratio between the negative examples and positive examples.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pos_mask</span> <span class="o">=</span> <span class="n">labels</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">num_pos</span> <span class="o">=</span> <span class="n">pos_mask</span><span class="o">.</span><span class="n">long</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">num_neg</span> <span class="o">=</span> <span class="n">num_pos</span> <span class="o">*</span> <span class="n">neg_pos_ratio</span>
+
+    <span class="n">loss</span><span class="p">[</span><span class="n">pos_mask</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">indexes</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">descending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">orders</span> <span class="o">=</span> <span class="n">indexes</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">neg_mask</span> <span class="o">=</span> <span class="n">orders</span> <span class="o">&lt;</span> <span class="n">num_neg</span>
+    <span class="k">return</span> <span class="n">pos_mask</span> <span class="o">|</span> <span class="n">neg_mask</span></div>
+
+
+
+<div class="viewcode-block" id="center_form_to_corner_form">
+<a class="viewcode-back" href="../../../../../../../mukh.detection.models.ultralight.vision.utils.html#mukh.detection.models.ultralight.vision.utils.box_utils.center_form_to_corner_form">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">center_form_to_corner_form</span><span class="p">(</span><span class="n">locations</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">locations</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">locations</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="n">locations</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">locations</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">locations</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="corner_form_to_center_form">
+<a class="viewcode-back" href="../../../../../../../mukh.detection.models.ultralight.vision.utils.html#mukh.detection.models.ultralight.vision.utils.box_utils.corner_form_to_center_form">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">corner_form_to_center_form</span><span class="p">(</span><span class="n">boxes</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+        <span class="p">[(</span><span class="n">boxes</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">boxes</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">boxes</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">-</span> <span class="n">boxes</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]],</span>
+        <span class="n">boxes</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="hard_nms">
+<a class="viewcode-back" href="../../../../../../../mukh.detection.models.ultralight.vision.utils.html#mukh.detection.models.ultralight.vision.utils.box_utils.hard_nms">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hard_nms</span><span class="p">(</span><span class="n">box_scores</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">candidate_size</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        box_scores (N, 5): boxes in corner-form and probabilities.</span>
+<span class="sd">        iou_threshold: intersection over union threshold.</span>
+<span class="sd">        top_k: keep top_k results. If k &lt;= 0, keep all the results.</span>
+<span class="sd">        candidate_size: only consider the candidates with the highest scores.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">         picked: a list of indexes of the kept boxes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">box_scores</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">boxes</span> <span class="o">=</span> <span class="n">box_scores</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">picked</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">indexes</span> <span class="o">=</span> <span class="n">scores</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">descending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">indexes</span> <span class="o">=</span> <span class="n">indexes</span><span class="p">[:</span><span class="n">candidate_size</span><span class="p">]</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">indexes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">indexes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">picked</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">top_k</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">picked</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">indexes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">current_box</span> <span class="o">=</span> <span class="n">boxes</span><span class="p">[</span><span class="n">current</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="n">indexes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="n">rest_boxes</span> <span class="o">=</span> <span class="n">boxes</span><span class="p">[</span><span class="n">indexes</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">iou</span> <span class="o">=</span> <span class="n">iou_of</span><span class="p">(</span>
+            <span class="n">rest_boxes</span><span class="p">,</span>
+            <span class="n">current_box</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="n">indexes</span><span class="p">[</span><span class="n">iou</span> <span class="o">&lt;=</span> <span class="n">iou_threshold</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">box_scores</span><span class="p">[</span><span class="n">picked</span><span class="p">,</span> <span class="p">:]</span></div>
+
+
+
+<div class="viewcode-block" id="nms">
+<a class="viewcode-back" href="../../../../../../../mukh.detection.models.ultralight.vision.utils.html#mukh.detection.models.ultralight.vision.utils.box_utils.nms">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">nms</span><span class="p">(</span>
+    <span class="n">box_scores</span><span class="p">,</span>
+    <span class="n">nms_method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">score_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">iou_threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">top_k</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">candidate_size</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">nms_method</span> <span class="o">==</span> <span class="s2">&quot;soft&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">soft_nms</span><span class="p">(</span><span class="n">box_scores</span><span class="p">,</span> <span class="n">score_threshold</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">top_k</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">hard_nms</span><span class="p">(</span><span class="n">box_scores</span><span class="p">,</span> <span class="n">iou_threshold</span><span class="p">,</span> <span class="n">top_k</span><span class="p">,</span> <span class="n">candidate_size</span><span class="o">=</span><span class="n">candidate_size</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="soft_nms">
+<a class="viewcode-back" href="../../../../../../../mukh.detection.models.ultralight.vision.utils.html#mukh.detection.models.ultralight.vision.utils.box_utils.soft_nms">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">soft_nms</span><span class="p">(</span><span class="n">box_scores</span><span class="p">,</span> <span class="n">score_threshold</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Soft NMS implementation.</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        https://arxiv.org/abs/1704.04503</span>
+<span class="sd">        https://github.com/facebookresearch/Detectron/blob/master/detectron/utils/cython_nms.pyx</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        box_scores (N, 5): boxes in corner-form and probabilities.</span>
+<span class="sd">        score_threshold: boxes with scores less than value are not considered.</span>
+<span class="sd">        sigma: the parameter in score re-computation.</span>
+<span class="sd">            scores[i] = scores[i] * exp(-(iou_i)^2 / simga)</span>
+<span class="sd">        top_k: keep top_k results. If k &lt;= 0, keep all the results.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">         picked_box_scores (K, 5): results of NMS.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">picked_box_scores</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">box_scores</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">max_score_index</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">box_scores</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">])</span>
+        <span class="n">cur_box_prob</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">box_scores</span><span class="p">[</span><span class="n">max_score_index</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="n">picked_box_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur_box_prob</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">picked_box_scores</span><span class="p">)</span> <span class="o">==</span> <span class="n">top_k</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">box_scores</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">cur_box</span> <span class="o">=</span> <span class="n">cur_box_prob</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">box_scores</span><span class="p">[</span><span class="n">max_score_index</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">box_scores</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">box_scores</span> <span class="o">=</span> <span class="n">box_scores</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">ious</span> <span class="o">=</span> <span class="n">iou_of</span><span class="p">(</span><span class="n">cur_box</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">box_scores</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">box_scores</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">box_scores</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">ious</span> <span class="o">*</span> <span class="n">ious</span><span class="p">)</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">)</span>
+        <span class="n">box_scores</span> <span class="o">=</span> <span class="n">box_scores</span><span class="p">[</span><span class="n">box_scores</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">score_threshold</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">picked_box_scores</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">picked_box_scores</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([])</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Ishan Dutta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

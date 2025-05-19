@@ -1,0 +1,21 @@
+mukh.detection.models.ultralight.vision.ssd.config package
+==========================================================
+
+Submodules
+----------
+
+mukh.detection.models.ultralight.vision.ssd.config.fd\_config module
+--------------------------------------------------------------------
+
+.. automodule:: mukh.detection.models.ultralight.vision.ssd.config.fd_config
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.detection.models.ultralight.vision.ssd.config
+   :members:
+   :show-inheritance:
+   :undoc-members:

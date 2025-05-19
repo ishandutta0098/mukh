@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mukh.detection.models.ultralight.vision.transforms package &mdash; mukh 0.0.361 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=662e4a1b"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            mukh
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">mukh</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">mukh</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mukh.detection.models.ultralight.vision.transforms package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mukh.detection.models.ultralight.vision.transforms.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mukh-detection-models-ultralight-vision-transforms-package">
+<h1>mukh.detection.models.ultralight.vision.transforms package<a class="headerlink" href="#mukh-detection-models-ultralight-vision-transforms-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-mukh.detection.models.ultralight.vision.transforms.transforms">
+<span id="mukh-detection-models-ultralight-vision-transforms-transforms-module"></span><h2>mukh.detection.models.ultralight.vision.transforms.transforms module<a class="headerlink" href="#module-mukh.detection.models.ultralight.vision.transforms.transforms" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.Compose">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">Compose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transforms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#Compose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.Compose" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Composes several augmentations together.
+:param transforms: list of transforms to compose.
+:type transforms: List[Transform]</p>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">augmentations</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">transforms</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">10</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">transforms</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.ConvertColor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">ConvertColor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#ConvertColor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.ConvertColor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.ConvertFromInts">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">ConvertFromInts</span></span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#ConvertFromInts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.ConvertFromInts" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.Expand">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">Expand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#Expand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.Expand" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.Lambda">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">Lambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambd</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#Lambda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.Lambda" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Applies a lambda as a transform.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.PhotometricDistort">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">PhotometricDistort</span></span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#PhotometricDistort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.PhotometricDistort" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.RandomBrightness">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">RandomBrightness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#RandomBrightness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.RandomBrightness" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.RandomContrast">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">RandomContrast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#RandomContrast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.RandomContrast" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.RandomHue">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">RandomHue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">18.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#RandomHue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.RandomHue" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.RandomLightingNoise">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">RandomLightingNoise</span></span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#RandomLightingNoise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.RandomLightingNoise" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.RandomMirror">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">RandomMirror</span></span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#RandomMirror"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.RandomMirror" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.RandomSampleCrop">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">RandomSampleCrop</span></span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#RandomSampleCrop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.RandomSampleCrop" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Crop
+:param img: the image being input during training
+:type img: Image
+:param boxes: the original bounding boxes in pt form
+:type boxes: Tensor
+:param labels: the class labels for each bbox
+:type labels: Tensor
+:param mode: the min and max jaccard overlaps
+:type mode: float tuple</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>(img, boxes, classes)</dt><dd><p>img (Image): the cropped image
+boxes (Tensor): the adjusted bounding boxes in pt form
+labels (Tensor): the class labels for each bbox</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.RandomSampleCrop_v2">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">RandomSampleCrop_v2</span></span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#RandomSampleCrop_v2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.RandomSampleCrop_v2" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Crop
+:param img: the image being input during training
+:type img: Image
+:param boxes: the original bounding boxes in pt form
+:type boxes: Tensor
+:param labels: the class labels for each bbox
+:type labels: Tensor
+:param mode: the min and max jaccard overlaps
+:type mode: float tuple</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>(img, boxes, classes)</dt><dd><p>img (Image): the cropped image
+boxes (Tensor): the adjusted bounding boxes in pt form
+labels (Tensor): the class labels for each bbox</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.RandomSaturation">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">RandomSaturation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#RandomSaturation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.RandomSaturation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.Resize">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">Resize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(300,</span> <span class="pre">300)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#Resize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.Resize" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.SubtractMeans">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">SubtractMeans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#SubtractMeans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.SubtractMeans" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.SwapChannels">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">SwapChannels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">swaps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#SwapChannels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.SwapChannels" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="simple">
+<dt>Transforms a tensorized image by swapping the channels in the order</dt><dd><p>specified in the swap tuple.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>swaps</strong> (<em>int triple</em>) – final order of channels
+eg: (2, 1, 0)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.ToAbsoluteCoords">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">ToAbsoluteCoords</span></span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#ToAbsoluteCoords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.ToAbsoluteCoords" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.ToCV2Image">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">ToCV2Image</span></span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#ToCV2Image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.ToCV2Image" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.ToPercentCoords">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">ToPercentCoords</span></span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#ToPercentCoords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.ToPercentCoords" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.ToTensor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">ToTensor</span></span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#ToTensor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.ToTensor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.imgprocess">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">imgprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">std</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#imgprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.imgprocess" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.intersect">
+<span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">intersect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#intersect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.intersect" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.jaccard_numpy">
+<span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">jaccard_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#jaccard_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.jaccard_numpy" title="Link to this definition"></a></dt>
+<dd><p>Compute the jaccard overlap of two sets of boxes.  The jaccard overlap
+is simply the intersection over union of two boxes.
+E.g.:</p>
+<blockquote>
+<div><p>A ∩ B / A ∪ B = A ∩ B / (area(A) + area(B) - A ∩ B)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>box_a</strong> – Multiple bounding boxes, Shape: [num_boxes,4]</p></li>
+<li><p><strong>box_b</strong> – Single bounding box, Shape: [4]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Shape: [box_a.shape[0], box_a.shape[1]]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jaccard overlap</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mukh.detection.models.ultralight.vision.transforms.transforms.object_converage_numpy">
+<span class="sig-prename descclassname"><span class="pre">mukh.detection.models.ultralight.vision.transforms.transforms.</span></span><span class="sig-name descname"><span class="pre">object_converage_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/detection/models/ultralight/vision/transforms/transforms.html#object_converage_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.detection.models.ultralight.vision.transforms.transforms.object_converage_numpy" title="Link to this definition"></a></dt>
+<dd><p>Compute the jaccard overlap of two sets of boxes.  The jaccard overlap
+is simply the intersection over union of two boxes.
+E.g.:</p>
+<blockquote>
+<div><p>A ∩ B / A ∪ B = A ∩ B / (area(A) + area(B) - A ∩ B)</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>box_a</strong> – Multiple bounding boxes, Shape: [num_boxes,4]</p></li>
+<li><p><strong>box_b</strong> – Single bounding box, Shape: [4]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Shape: [box_a.shape[0], box_a.shape[1]]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jaccard overlap</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-mukh.detection.models.ultralight.vision.transforms">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mukh.detection.models.ultralight.vision.transforms" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Ishan Dutta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
