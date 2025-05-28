@@ -1,0 +1,29 @@
+mukh.face\_detection.models.ultralight.vision.utils package
+===========================================================
+
+Submodules
+----------
+
+mukh.face\_detection.models.ultralight.vision.utils.box\_utils module
+---------------------------------------------------------------------
+
+.. automodule:: mukh.face_detection.models.ultralight.vision.utils.box_utils
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+mukh.face\_detection.models.ultralight.vision.utils.misc module
+---------------------------------------------------------------
+
+.. automodule:: mukh.face_detection.models.ultralight.vision.utils.misc
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.face_detection.models.ultralight.vision.utils
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,21 @@
+mukh.face\_detection.models.ultralight.vision.ssd.config package
+================================================================
+
+Submodules
+----------
+
+mukh.face\_detection.models.ultralight.vision.ssd.config.fd\_config module
+--------------------------------------------------------------------------
+
+.. automodule:: mukh.face_detection.models.ultralight.vision.ssd.config.fd_config
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.face_detection.models.ultralight.vision.ssd.config
+   :members:
+   :show-inheritance:
+   :undoc-members:

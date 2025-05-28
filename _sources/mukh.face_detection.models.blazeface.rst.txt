@@ -1,0 +1,29 @@
+mukh.face\_detection.models.blazeface package
+=============================================
+
+Submodules
+----------
+
+mukh.face\_detection.models.blazeface.blazeface\_detector module
+----------------------------------------------------------------
+
+.. automodule:: mukh.face_detection.models.blazeface.blazeface_detector
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+mukh.face\_detection.models.blazeface.blazeface\_torch module
+-------------------------------------------------------------
+
+.. automodule:: mukh.face_detection.models.blazeface.blazeface_torch
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.face_detection.models.blazeface
+   :members:
+   :show-inheritance:
+   :undoc-members:

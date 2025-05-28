@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mukh.detection.models.mediapipe package &mdash; mukh 0.0.37 documentation</title>
+  <title>mukh.face_detection.models.ultralight.vision.ssd.config package &mdash; mukh 0.0.37 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
@@ -18,9 +18,7 @@
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="mukh.detection.models.ultralight package" href="mukh.detection.models.ultralight.html" />
-    <link rel="prev" title="mukh.detection.models.blazeface package" href="mukh.detection.models.blazeface.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,20 +41,8 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">mukh</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="mukh.html">mukh package</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="mukh.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="mukh.core.html">mukh.core package</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="mukh.detection.html">mukh.detection package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mukh.utils.html">mukh.utils package</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="mukh.html#module-mukh">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">mukh</a></li>
 </ul>
 
         </div>
@@ -73,13 +59,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">mukh</a></li>
-          <li class="breadcrumb-item"><a href="mukh.html">mukh package</a></li>
-          <li class="breadcrumb-item"><a href="mukh.detection.html">mukh.detection package</a></li>
-          <li class="breadcrumb-item"><a href="mukh.detection.models.html">mukh.detection.models package</a></li>
-      <li class="breadcrumb-item active">mukh.detection.models.mediapipe package</li>
+      <li class="breadcrumb-item active">mukh.face_detection.models.ultralight.vision.ssd.config package</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/mukh.detection.models.mediapipe.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/mukh.face_detection.models.ultralight.vision.ssd.config.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -87,26 +69,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="mukh-detection-models-mediapipe-package">
-<h1>mukh.detection.models.mediapipe package<a class="headerlink" href="#mukh-detection-models-mediapipe-package" title="Link to this heading"></a></h1>
+  <section id="mukh-face-detection-models-ultralight-vision-ssd-config-package">
+<h1>mukh.face_detection.models.ultralight.vision.ssd.config package<a class="headerlink" href="#mukh-face-detection-models-ultralight-vision-ssd-config-package" title="Link to this heading"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
-<section id="mukh-detection-models-mediapipe-mediapipe-detector-module">
-<h2>mukh.detection.models.mediapipe.mediapipe_detector module<a class="headerlink" href="#mukh-detection-models-mediapipe-mediapipe-detector-module" title="Link to this heading"></a></h2>
+<section id="module-mukh.face_detection.models.ultralight.vision.ssd.config.fd_config">
+<span id="mukh-face-detection-models-ultralight-vision-ssd-config-fd-config-module"></span><h2>mukh.face_detection.models.ultralight.vision.ssd.config.fd_config module<a class="headerlink" href="#module-mukh.face_detection.models.ultralight.vision.ssd.config.fd_config" title="Link to this heading"></a></h2>
+<p>UltraLight PyTorch implementation adapted from:
+<a class="reference external" href="https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB">https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB</a></p>
+<p>Original implementation by Linzaer</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mukh.face_detection.models.ultralight.vision.ssd.config.fd_config.define_img_size">
+<span class="sig-prename descclassname"><span class="pre">mukh.face_detection.models.ultralight.vision.ssd.config.fd_config.</span></span><span class="sig-name descname"><span class="pre">define_img_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/ultralight/vision/ssd/config/fd_config.html#define_img_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.ultralight.vision.ssd.config.fd_config.define_img_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<section id="module-mukh.face_detection.models.ultralight.vision.ssd.config">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mukh.face_detection.models.ultralight.vision.ssd.config" title="Link to this heading"></a></h2>
 </section>
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="mukh.detection.models.blazeface.html" class="btn btn-neutral float-left" title="mukh.detection.models.blazeface package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="mukh.detection.models.ultralight.html" class="btn btn-neutral float-right" title="mukh.detection.models.ultralight package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

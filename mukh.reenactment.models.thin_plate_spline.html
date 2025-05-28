@@ -1,0 +1,208 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mukh.reenactment.models.thin_plate_spline package &mdash; mukh 0.0.37 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            mukh
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">mukh</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">mukh</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mukh.reenactment.models.thin_plate_spline package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mukh.reenactment.models.thin_plate_spline.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mukh-reenactment-models-thin-plate-spline-package">
+<h1>mukh.reenactment.models.thin_plate_spline package<a class="headerlink" href="#mukh-reenactment-models-thin-plate-spline-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-mukh.reenactment.models.thin_plate_spline.tps_reenactor">
+<span id="mukh-reenactment-models-thin-plate-spline-tps-reenactor-module"></span><h2>mukh.reenactment.models.thin_plate_spline.tps_reenactor module<a class="headerlink" href="#module-mukh.reenactment.models.thin_plate_spline.tps_reenactor" title="Link to this heading"></a></h2>
+<p>Implementation of face reenactment using Thin Plate Spline model.</p>
+<p>Source: <a class="reference external" href="https://github.com/yoyo-nb/Thin-Plate-Spline-Motion-Model">https://github.com/yoyo-nb/Thin-Plate-Spline-Motion-Model</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.reenactment.models.thin_plate_spline.tps_reenactor.</span></span><span class="sig-name descname"><span class="pre">ThinPlateSplineReenactor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'relative'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">find_best_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/reenactment/models/thin_plate_spline/tps_reenactor.html#ThinPlateSplineReenactor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="mukh.reenactment.models.html#mukh.reenactment.models.base_reenactor.BaseFaceReenactor" title="mukh.reenactment.models.base_reenactor.BaseFaceReenactor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseFaceReenactor</span></code></a></p>
+<p>Implements face reenactment using the Thin Plate Spline model.</p>
+<p>This class uses the TPS model to perform face reenactment, transferring facial
+expressions from a driving image/video to a source image.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.model_path">
+<span class="sig-name descname"><span class="pre">model_path</span></span><a class="headerlink" href="#mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.model_path" title="Link to this definition"></a></dt>
+<dd><p>Path to the model checkpoint file.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.device">
+<span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.device" title="Link to this definition"></a></dt>
+<dd><p>Device to run inference on (‘cpu’, ‘cuda’, etc.).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.config_path">
+<span class="sig-name descname"><span class="pre">config_path</span></span><a class="headerlink" href="#mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.config_path" title="Link to this definition"></a></dt>
+<dd><p>Path to the model configuration file.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.predict_mode">
+<span class="sig-name descname"><span class="pre">predict_mode</span></span><a class="headerlink" href="#mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.predict_mode" title="Link to this definition"></a></dt>
+<dd><p>Animation prediction mode (‘standard’, ‘relative’, ‘avd’).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.find_best_frame">
+<span class="sig-name descname"><span class="pre">find_best_frame</span></span><a class="headerlink" href="#mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.find_best_frame" title="Link to this definition"></a></dt>
+<dd><p>Whether to find the best frame when using relative mode.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.pixel">
+<span class="sig-name descname"><span class="pre">pixel</span></span><a class="headerlink" href="#mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.pixel" title="Link to this definition"></a></dt>
+<dd><p>Resolution to resize images to (default: 256).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.reenact_from_video">
+<span class="sig-name descname"><span class="pre">reenact_from_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">driving_video_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'output'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_comparison</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resize_to_image_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/mukh/reenactment/models/thin_plate_spline/tps_reenactor.html#ThinPlateSplineReenactor.reenact_from_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.reenactment.models.thin_plate_spline.tps_reenactor.ThinPlateSplineReenactor.reenact_from_video" title="Link to this definition"></a></dt>
+<dd><p>Performs face reenactment using a source image and driving video.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_path</strong> – Path to the source image (face to be animated).</p></li>
+<li><p><strong>driving_video_path</strong> – Path to the driving video (facial motion to transfer).</p></li>
+<li><p><strong>output_path</strong> – Optional path to the output directory. Defaults to “output”.</p></li>
+<li><p><strong>save_comparison</strong> – Whether to save a comparison animation showing source,
+driving, and generated frames side by side. Defaults to False.</p></li>
+<li><p><strong>resize_to_image_resolution</strong> – Whether to resize the output video to match
+the original source image resolution. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the generated output video.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mukh.reenactment.models.thin_plate_spline.utils">
+<span id="mukh-reenactment-models-thin-plate-spline-utils-module"></span><h2>mukh.reenactment.models.thin_plate_spline.utils module<a class="headerlink" href="#module-mukh.reenactment.models.thin_plate_spline.utils" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mukh.reenactment.models.thin_plate_spline.utils.find_best_frame">
+<span class="sig-prename descclassname"><span class="pre">mukh.reenactment.models.thin_plate_spline.utils.</span></span><span class="sig-name descname"><span class="pre">find_best_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">driving</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/reenactment/models/thin_plate_spline/utils.html#find_best_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.reenactment.models.thin_plate_spline.utils.find_best_frame" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mukh.reenactment.models.thin_plate_spline.utils.load_checkpoints">
+<span class="sig-prename descclassname"><span class="pre">mukh.reenactment.models.thin_plate_spline.utils.</span></span><span class="sig-name descname"><span class="pre">load_checkpoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/reenactment/models/thin_plate_spline/utils.html#load_checkpoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.reenactment.models.thin_plate_spline.utils.load_checkpoints" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mukh.reenactment.models.thin_plate_spline.utils.make_animation">
+<span class="sig-prename descclassname"><span class="pre">mukh.reenactment.models.thin_plate_spline.utils.</span></span><span class="sig-name descname"><span class="pre">make_animation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">driving_video</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inpainting_network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kp_detector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dense_motion_network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avd_network</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'relative'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/reenactment/models/thin_plate_spline/utils.html#make_animation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.reenactment.models.thin_plate_spline.utils.make_animation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mukh.reenactment.models.thin_plate_spline.utils.relative_kp">
+<span class="sig-prename descclassname"><span class="pre">mukh.reenactment.models.thin_plate_spline.utils.</span></span><span class="sig-name descname"><span class="pre">relative_kp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kp_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kp_driving</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kp_driving_initial</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/reenactment/models/thin_plate_spline/utils.html#relative_kp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.reenactment.models.thin_plate_spline.utils.relative_kp" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mukh.reenactment.models.thin_plate_spline">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mukh.reenactment.models.thin_plate_spline" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Ishan Dutta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

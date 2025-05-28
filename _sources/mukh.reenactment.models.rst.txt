@@ -1,0 +1,29 @@
+mukh.reenactment.models package
+===============================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   mukh.reenactment.models.thin_plate_spline
+
+Submodules
+----------
+
+mukh.reenactment.models.base\_reenactor module
+----------------------------------------------
+
+.. automodule:: mukh.reenactment.models.base_reenactor
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.reenactment.models
+   :members:
+   :show-inheritance:
+   :undoc-members:

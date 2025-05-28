@@ -1,0 +1,37 @@
+mukh.face\_detection.models.ultralight.vision.nn package
+========================================================
+
+Submodules
+----------
+
+mukh.face\_detection.models.ultralight.vision.nn.mb\_tiny module
+----------------------------------------------------------------
+
+.. automodule:: mukh.face_detection.models.ultralight.vision.nn.mb_tiny
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+mukh.face\_detection.models.ultralight.vision.nn.mb\_tiny\_RFB module
+---------------------------------------------------------------------
+
+.. automodule:: mukh.face_detection.models.ultralight.vision.nn.mb_tiny_RFB
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+mukh.face\_detection.models.ultralight.vision.nn.multibox\_loss module
+----------------------------------------------------------------------
+
+.. automodule:: mukh.face_detection.models.ultralight.vision.nn.multibox_loss
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.face_detection.models.ultralight.vision.nn
+   :members:
+   :show-inheritance:
+   :undoc-members:

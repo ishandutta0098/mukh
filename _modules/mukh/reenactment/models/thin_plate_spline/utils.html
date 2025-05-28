@@ -1,0 +1,389 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mukh.reenactment.models.thin_plate_spline.utils &mdash; mukh 0.0.37 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            mukh
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">mukh</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">mukh</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mukh.reenactment.models.thin_plate_spline.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mukh.reenactment.models.thin_plate_spline.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;Agg&quot;</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">argparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArgumentParser</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">imageio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConvexHull</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skimage</span><span class="w"> </span><span class="kn">import</span> <span class="n">img_as_ubyte</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">skimage.transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">resize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mukh.reenactment.models.thin_plate_spline.modules.avd_network</span><span class="w"> </span><span class="kn">import</span> <span class="n">AVDNetwork</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mukh.reenactment.models.thin_plate_spline.modules.dense_motion</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DenseMotionNetwork</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mukh.reenactment.models.thin_plate_spline.modules.inpainting_network</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">InpaintingNetwork</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mukh.reenactment.models.thin_plate_spline.modules.keypoint_detector</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">KPDetector</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span>
+        <span class="s2">&quot;You must use Python 3 or higher. Recommended version is Python 3.9&quot;</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="relative_kp">
+<a class="viewcode-back" href="../../../../../mukh.reenactment.models.thin_plate_spline.html#mukh.reenactment.models.thin_plate_spline.utils.relative_kp">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">relative_kp</span><span class="p">(</span><span class="n">kp_source</span><span class="p">,</span> <span class="n">kp_driving</span><span class="p">,</span> <span class="n">kp_driving_initial</span><span class="p">):</span>
+
+    <span class="n">source_area</span> <span class="o">=</span> <span class="n">ConvexHull</span><span class="p">(</span><span class="n">kp_source</span><span class="p">[</span><span class="s2">&quot;fg_kp&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span><span class="o">.</span><span class="n">volume</span>
+    <span class="n">driving_area</span> <span class="o">=</span> <span class="n">ConvexHull</span><span class="p">(</span><span class="n">kp_driving_initial</span><span class="p">[</span><span class="s2">&quot;fg_kp&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span><span class="o">.</span><span class="n">volume</span>
+    <span class="n">adapt_movement_scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">source_area</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">driving_area</span><span class="p">)</span>
+
+    <span class="n">kp_new</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kp_driving</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+    <span class="n">kp_value_diff</span> <span class="o">=</span> <span class="n">kp_driving</span><span class="p">[</span><span class="s2">&quot;fg_kp&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">kp_driving_initial</span><span class="p">[</span><span class="s2">&quot;fg_kp&quot;</span><span class="p">]</span>
+    <span class="n">kp_value_diff</span> <span class="o">*=</span> <span class="n">adapt_movement_scale</span>
+    <span class="n">kp_new</span><span class="p">[</span><span class="s2">&quot;fg_kp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp_value_diff</span> <span class="o">+</span> <span class="n">kp_source</span><span class="p">[</span><span class="s2">&quot;fg_kp&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">kp_new</span></div>
+
+
+
+<div class="viewcode-block" id="load_checkpoints">
+<a class="viewcode-back" href="../../../../../mukh.reenactment.models.thin_plate_spline.html#mukh.reenactment.models.thin_plate_spline.utils.load_checkpoints">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_checkpoints</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">full_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="n">inpainting</span> <span class="o">=</span> <span class="n">InpaintingNetwork</span><span class="p">(</span>
+        <span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_params&quot;</span><span class="p">][</span><span class="s2">&quot;generator_params&quot;</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_params&quot;</span><span class="p">][</span><span class="s2">&quot;common_params&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">kp_detector</span> <span class="o">=</span> <span class="n">KPDetector</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_params&quot;</span><span class="p">][</span><span class="s2">&quot;common_params&quot;</span><span class="p">])</span>
+    <span class="n">dense_motion_network</span> <span class="o">=</span> <span class="n">DenseMotionNetwork</span><span class="p">(</span>
+        <span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_params&quot;</span><span class="p">][</span><span class="s2">&quot;common_params&quot;</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_params&quot;</span><span class="p">][</span><span class="s2">&quot;dense_motion_params&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">avd_network</span> <span class="o">=</span> <span class="n">AVDNetwork</span><span class="p">(</span>
+        <span class="n">num_tps</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_params&quot;</span><span class="p">][</span><span class="s2">&quot;common_params&quot;</span><span class="p">][</span><span class="s2">&quot;num_tps&quot;</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model_params&quot;</span><span class="p">][</span><span class="s2">&quot;avd_network_params&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">kp_detector</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">dense_motion_network</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">inpainting</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">avd_network</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="n">inpainting</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s2">&quot;inpainting_network&quot;</span><span class="p">])</span>
+    <span class="n">kp_detector</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s2">&quot;kp_detector&quot;</span><span class="p">])</span>
+    <span class="n">dense_motion_network</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s2">&quot;dense_motion_network&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">&quot;avd_network&quot;</span> <span class="ow">in</span> <span class="n">checkpoint</span><span class="p">:</span>
+        <span class="n">avd_network</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s2">&quot;avd_network&quot;</span><span class="p">])</span>
+
+    <span class="n">inpainting</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">kp_detector</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">dense_motion_network</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">avd_network</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">inpainting</span><span class="p">,</span> <span class="n">kp_detector</span><span class="p">,</span> <span class="n">dense_motion_network</span><span class="p">,</span> <span class="n">avd_network</span></div>
+
+
+
+<div class="viewcode-block" id="make_animation">
+<a class="viewcode-back" href="../../../../../mukh.reenactment.models.thin_plate_spline.html#mukh.reenactment.models.thin_plate_spline.utils.make_animation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_animation</span><span class="p">(</span>
+    <span class="n">source_image</span><span class="p">,</span>
+    <span class="n">driving_video</span><span class="p">,</span>
+    <span class="n">inpainting_network</span><span class="p">,</span>
+    <span class="n">kp_detector</span><span class="p">,</span>
+    <span class="n">dense_motion_network</span><span class="p">,</span>
+    <span class="n">avd_network</span><span class="p">,</span>
+    <span class="n">device</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;relative&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">assert</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="s2">&quot;relative&quot;</span><span class="p">,</span> <span class="s2">&quot;avd&quot;</span><span class="p">]</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">source_image</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span>
+        <span class="p">)</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">driving</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">driving_video</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">kp_source</span> <span class="o">=</span> <span class="n">kp_detector</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="n">kp_driving_initial</span> <span class="o">=</span> <span class="n">kp_detector</span><span class="p">(</span><span class="n">driving</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">frame_idx</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">driving</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])):</span>
+            <span class="n">driving_frame</span> <span class="o">=</span> <span class="n">driving</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">frame_idx</span><span class="p">]</span>
+            <span class="n">driving_frame</span> <span class="o">=</span> <span class="n">driving_frame</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">kp_driving</span> <span class="o">=</span> <span class="n">kp_detector</span><span class="p">(</span><span class="n">driving_frame</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;standard&quot;</span><span class="p">:</span>
+                <span class="n">kp_norm</span> <span class="o">=</span> <span class="n">kp_driving</span>
+            <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;relative&quot;</span><span class="p">:</span>
+                <span class="n">kp_norm</span> <span class="o">=</span> <span class="n">relative_kp</span><span class="p">(</span>
+                    <span class="n">kp_source</span><span class="o">=</span><span class="n">kp_source</span><span class="p">,</span>
+                    <span class="n">kp_driving</span><span class="o">=</span><span class="n">kp_driving</span><span class="p">,</span>
+                    <span class="n">kp_driving_initial</span><span class="o">=</span><span class="n">kp_driving_initial</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;avd&quot;</span><span class="p">:</span>
+                <span class="n">kp_norm</span> <span class="o">=</span> <span class="n">avd_network</span><span class="p">(</span><span class="n">kp_source</span><span class="p">,</span> <span class="n">kp_driving</span><span class="p">)</span>
+            <span class="n">dense_motion</span> <span class="o">=</span> <span class="n">dense_motion_network</span><span class="p">(</span>
+                <span class="n">source_image</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+                <span class="n">kp_driving</span><span class="o">=</span><span class="n">kp_norm</span><span class="p">,</span>
+                <span class="n">kp_source</span><span class="o">=</span><span class="n">kp_source</span><span class="p">,</span>
+                <span class="n">bg_param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">dropout_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">inpainting_network</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">dense_motion</span><span class="p">)</span>
+
+            <span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;prediction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">predictions</span></div>
+
+
+
+<div class="viewcode-block" id="find_best_frame">
+<a class="viewcode-back" href="../../../../../mukh.reenactment.models.thin_plate_spline.html#mukh.reenactment.models.thin_plate_spline.utils.find_best_frame">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_best_frame</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">driving</span><span class="p">,</span> <span class="n">cpu</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">face_alignment</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">normalize_kp</span><span class="p">(</span><span class="n">kp</span><span class="p">):</span>
+        <span class="n">kp</span> <span class="o">=</span> <span class="n">kp</span> <span class="o">-</span> <span class="n">kp</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">ConvexHull</span><span class="p">(</span><span class="n">kp</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">volume</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
+        <span class="n">kp</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">kp</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">area</span>
+        <span class="k">return</span> <span class="n">kp</span>
+
+    <span class="n">fa</span> <span class="o">=</span> <span class="n">face_alignment</span><span class="o">.</span><span class="n">FaceAlignment</span><span class="p">(</span>
+        <span class="n">face_alignment</span><span class="o">.</span><span class="n">LandmarksType</span><span class="o">.</span><span class="n">_2D</span><span class="p">,</span>
+        <span class="n">flip_input</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span> <span class="k">if</span> <span class="n">cpu</span> <span class="k">else</span> <span class="s2">&quot;cuda&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">kp_source</span> <span class="o">=</span> <span class="n">fa</span><span class="o">.</span><span class="n">get_landmarks</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">source</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">kp_source</span> <span class="o">=</span> <span class="n">normalize_kp</span><span class="p">(</span><span class="n">kp_source</span><span class="p">)</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+    <span class="n">frame_num</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">driving</span><span class="p">)):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">kp_driving</span> <span class="o">=</span> <span class="n">fa</span><span class="o">.</span><span class="n">get_landmarks</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">image</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">kp_driving</span> <span class="o">=</span> <span class="n">normalize_kp</span><span class="p">(</span><span class="n">kp_driving</span><span class="p">)</span>
+            <span class="n">new_norm</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">kp_source</span> <span class="o">-</span> <span class="n">kp_driving</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">new_norm</span> <span class="o">&lt;</span> <span class="n">norm</span><span class="p">:</span>
+                <span class="n">norm</span> <span class="o">=</span> <span class="n">new_norm</span>
+                <span class="n">frame_num</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">frame_num</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">()</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--config&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to config&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--checkpoint&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;checkpoints/vox.pth.tar&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to checkpoint to restore&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--source_image&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./assets/source.png&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to source image&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--driving_video&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./assets/driving.mp4&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to driving video&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--result_video&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;./result.mp4&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to output&quot;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--img_shape&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;256,256&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Shape of image, that the model was trained on.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--mode&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;relative&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="s2">&quot;relative&quot;</span><span class="p">,</span> <span class="s2">&quot;avd&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Animate mode: [&#39;standard&#39;, &#39;relative&#39;, &#39;avd&#39;], when use the relative mode to animate a face, use &#39;--find_best_frame&#39; can get better quality result&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--find_best_frame&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;find_best_frame&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate from the frame that is the most alligned with source. (Only for faces, requires face_aligment lib)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--cpu&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;cpu mode.&quot;</span><span class="p">)</span>
+
+    <span class="n">opt</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">source_image</span> <span class="o">=</span> <span class="n">imageio</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">source_image</span><span class="p">)</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">imageio</span><span class="o">.</span><span class="n">get_reader</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">driving_video</span><span class="p">)</span>
+    <span class="n">fps</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_meta_data</span><span class="p">()[</span><span class="s2">&quot;fps&quot;</span><span class="p">]</span>
+    <span class="n">driving_video</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">im</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+            <span class="n">driving_video</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="n">reader</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">cpu</span><span class="p">:</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
+
+    <span class="n">source_image</span> <span class="o">=</span> <span class="n">resize</span><span class="p">(</span><span class="n">source_image</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">img_shape</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">driving_video</span> <span class="o">=</span> <span class="p">[</span><span class="n">resize</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">img_shape</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">driving_video</span><span class="p">]</span>
+    <span class="n">inpainting</span><span class="p">,</span> <span class="n">kp_detector</span><span class="p">,</span> <span class="n">dense_motion_network</span><span class="p">,</span> <span class="n">avd_network</span> <span class="o">=</span> <span class="n">load_checkpoints</span><span class="p">(</span>
+        <span class="n">config_path</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">find_best_frame</span><span class="p">:</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">find_best_frame</span><span class="p">(</span><span class="n">source_image</span><span class="p">,</span> <span class="n">driving_video</span><span class="p">,</span> <span class="n">opt</span><span class="o">.</span><span class="n">cpu</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best frame: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="n">driving_forward</span> <span class="o">=</span> <span class="n">driving_video</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span>
+        <span class="n">driving_backward</span> <span class="o">=</span> <span class="n">driving_video</span><span class="p">[:</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">predictions_forward</span> <span class="o">=</span> <span class="n">make_animation</span><span class="p">(</span>
+            <span class="n">source_image</span><span class="p">,</span>
+            <span class="n">driving_forward</span><span class="p">,</span>
+            <span class="n">inpainting</span><span class="p">,</span>
+            <span class="n">kp_detector</span><span class="p">,</span>
+            <span class="n">dense_motion_network</span><span class="p">,</span>
+            <span class="n">avd_network</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">predictions_backward</span> <span class="o">=</span> <span class="n">make_animation</span><span class="p">(</span>
+            <span class="n">source_image</span><span class="p">,</span>
+            <span class="n">driving_backward</span><span class="p">,</span>
+            <span class="n">inpainting</span><span class="p">,</span>
+            <span class="n">kp_detector</span><span class="p">,</span>
+            <span class="n">dense_motion_network</span><span class="p">,</span>
+            <span class="n">avd_network</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">predictions_backward</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">predictions_forward</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">make_animation</span><span class="p">(</span>
+            <span class="n">source_image</span><span class="p">,</span>
+            <span class="n">driving_video</span><span class="p">,</span>
+            <span class="n">inpainting</span><span class="p">,</span>
+            <span class="n">kp_detector</span><span class="p">,</span>
+            <span class="n">dense_motion_network</span><span class="p">,</span>
+            <span class="n">avd_network</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="n">opt</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">imageio</span><span class="o">.</span><span class="n">mimsave</span><span class="p">(</span>
+        <span class="n">opt</span><span class="o">.</span><span class="n">result_video</span><span class="p">,</span> <span class="p">[</span><span class="n">img_as_ubyte</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">],</span> <span class="n">fps</span><span class="o">=</span><span class="n">fps</span>
+    <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Ishan Dutta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

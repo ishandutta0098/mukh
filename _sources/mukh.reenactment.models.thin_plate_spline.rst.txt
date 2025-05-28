@@ -1,0 +1,29 @@
+mukh.reenactment.models.thin\_plate\_spline package
+===================================================
+
+Submodules
+----------
+
+mukh.reenactment.models.thin\_plate\_spline.tps\_reenactor module
+-----------------------------------------------------------------
+
+.. automodule:: mukh.reenactment.models.thin_plate_spline.tps_reenactor
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+mukh.reenactment.models.thin\_plate\_spline.utils module
+--------------------------------------------------------
+
+.. automodule:: mukh.reenactment.models.thin_plate_spline.utils
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.reenactment.models.thin_plate_spline
+   :members:
+   :show-inheritance:
+   :undoc-members:

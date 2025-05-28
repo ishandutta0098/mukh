@@ -1,0 +1,29 @@
+mukh.face\_detection package
+============================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   mukh.face_detection.models
+
+Submodules
+----------
+
+mukh.face\_detection.face\_detector module
+------------------------------------------
+
+.. automodule:: mukh.face_detection.face_detector
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.face_detection
+   :members:
+   :show-inheritance:
+   :undoc-members:

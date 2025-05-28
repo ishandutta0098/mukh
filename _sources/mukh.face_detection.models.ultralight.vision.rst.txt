@@ -1,0 +1,21 @@
+mukh.face\_detection.models.ultralight.vision package
+=====================================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   mukh.face_detection.models.ultralight.vision.nn
+   mukh.face_detection.models.ultralight.vision.ssd
+   mukh.face_detection.models.ultralight.vision.transforms
+   mukh.face_detection.models.ultralight.vision.utils
+
+Module contents
+---------------
+
+.. automodule:: mukh.face_detection.models.ultralight.vision
+   :members:
+   :show-inheritance:
+   :undoc-members:

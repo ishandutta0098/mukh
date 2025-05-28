@@ -1,0 +1,21 @@
+mukh.face\_detection.models.mediapipe package
+=============================================
+
+Submodules
+----------
+
+mukh.face\_detection.models.mediapipe.mediapipe\_detector module
+----------------------------------------------------------------
+
+.. automodule:: mukh.face_detection.models.mediapipe.mediapipe_detector
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.face_detection.models.mediapipe
+   :members:
+   :show-inheritance:
+   :undoc-members:
