@@ -1,0 +1,642 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mukh.face_detection.models.blazeface.face_extract &mdash; mukh 0.0.37 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            mukh
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules.html">mukh</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">mukh</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mukh.face_detection.models.blazeface.face_extract</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mukh.face_detection.models.blazeface.face_extract</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mukh.deepfake_detection.models.efficientnet.blazeface</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlazeFace</span>
+
+
+<div class="viewcode-block" id="FaceExtractor">
+<a class="viewcode-back" href="../../../../../mukh.face_detection.models.blazeface.html#mukh.face_detection.models.blazeface.face_extract.FaceExtractor">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FaceExtractor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for face extraction workflow.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">video_read_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">facedet</span><span class="p">:</span> <span class="n">BlazeFace</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a new FaceExtractor.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            video_read_fn: a function that takes in a path to a video file</span>
+<span class="sd">                and returns a tuple consisting of a NumPy array with shape</span>
+<span class="sd">                (num_frames, H, W, 3) and a list of frame indices, or None</span>
+<span class="sd">                in case of an error</span>
+<span class="sd">            facedet: the face detector object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">video_read_fn</span> <span class="o">=</span> <span class="n">video_read_fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">facedet</span> <span class="o">=</span> <span class="n">facedet</span>
+
+<div class="viewcode-block" id="FaceExtractor.process_image">
+<a class="viewcode-back" href="../../../../../mukh.face_detection.models.blazeface.html#mukh.face_detection.models.blazeface.face_extract.FaceExtractor.process_image">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_image</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process a single image</span>
+<span class="sd">        :param path: Path to the image</span>
+<span class="sd">        :param img: image</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">img</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one argument between path and img can be specified&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">img</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;At least one argument between path and img must be specified&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">target_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">facedet</span><span class="o">.</span><span class="n">input_size</span>
+
+        <span class="k">if</span> <span class="n">img</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+        <span class="c1"># Split the frames into several tiles. Resize the tiles to 128x128.</span>
+        <span class="n">tiles</span><span class="p">,</span> <span class="n">resize_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tile_frames</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">target_size</span><span class="p">)</span>
+        <span class="c1"># tiles has shape (num_tiles, target_size, target_size, 3)</span>
+        <span class="c1"># resize_info is a list of four elements [resize_factor_y, resize_factor_x, 0, 0]</span>
+
+        <span class="c1"># Run the face detector. The result is a list of PyTorch tensors,</span>
+        <span class="c1"># one for each tile in the batch.</span>
+        <span class="n">detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">facedet</span><span class="o">.</span><span class="n">predict_on_batch</span><span class="p">(</span><span class="n">tiles</span><span class="p">,</span> <span class="n">apply_nms</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Convert the detections from 128x128 back to the original frame size.</span>
+        <span class="n">detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resize_detections</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span> <span class="n">target_size</span><span class="p">,</span> <span class="n">resize_info</span><span class="p">)</span>
+
+        <span class="c1"># Because we have several tiles for each frame, combine the predictions</span>
+        <span class="c1"># from these tiles. The result is a list of PyTorch tensors, but now one</span>
+        <span class="c1"># for each frame (rather than each tile).</span>
+        <span class="n">num_frames</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">frame_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_untile_detections</span><span class="p">(</span><span class="n">num_frames</span><span class="p">,</span> <span class="n">frame_size</span><span class="p">,</span> <span class="n">detections</span><span class="p">)</span>
+
+        <span class="c1"># The same face may have been detected in multiple tiles, so filter out</span>
+        <span class="c1"># overlapping detections. This is done separately for each frame.</span>
+        <span class="n">detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">facedet</span><span class="o">.</span><span class="n">nms</span><span class="p">(</span><span class="n">detections</span><span class="p">)</span>
+
+        <span class="c1"># Crop the faces out of the original frame.</span>
+        <span class="n">frameref_detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_margin_to_detections</span><span class="p">(</span>
+            <span class="n">detections</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">frame_size</span><span class="p">,</span> <span class="mf">0.2</span>
+        <span class="p">)</span>
+        <span class="n">faces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_crop_faces</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">frameref_detections</span><span class="p">)</span>
+        <span class="n">kpts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_crop_kpts</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">detections</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.3</span><span class="p">)</span>
+
+        <span class="c1"># Add additional information about the frame and detections.</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">detections</span><span class="p">[</span><span class="mi">0</span><span class="p">][:,</span> <span class="mi">16</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+        <span class="n">frame_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;frame_w&quot;</span><span class="p">:</span> <span class="n">frame_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s2">&quot;frame_h&quot;</span><span class="p">:</span> <span class="n">frame_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s2">&quot;faces&quot;</span><span class="p">:</span> <span class="n">faces</span><span class="p">,</span>
+            <span class="s2">&quot;kpts&quot;</span><span class="p">:</span> <span class="n">kpts</span><span class="p">,</span>
+            <span class="s2">&quot;detections&quot;</span><span class="p">:</span> <span class="n">frameref_detections</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
+            <span class="s2">&quot;scores&quot;</span><span class="p">:</span> <span class="n">scores</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Sort faces by descending confidence</span>
+        <span class="n">frame_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_soft_faces_by_descending_score</span><span class="p">(</span><span class="n">frame_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">frame_dict</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_soft_faces_by_descending_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame_dict</span><span class="p">[</span><span class="s2">&quot;scores&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">sort_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">frame_dict</span><span class="p">[</span><span class="s2">&quot;scores&quot;</span><span class="p">])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">new_faces</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame_dict</span><span class="p">[</span><span class="s2">&quot;faces&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sort_idxs</span><span class="p">]</span>
+            <span class="n">new_kpts</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame_dict</span><span class="p">[</span><span class="s2">&quot;kpts&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sort_idxs</span><span class="p">]</span>
+            <span class="n">new_detections</span> <span class="o">=</span> <span class="n">frame_dict</span><span class="p">[</span><span class="s2">&quot;detections&quot;</span><span class="p">][</span><span class="n">sort_idxs</span><span class="p">]</span>
+            <span class="n">new_scores</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame_dict</span><span class="p">[</span><span class="s2">&quot;scores&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sort_idxs</span><span class="p">]</span>
+            <span class="n">frame_dict</span><span class="p">[</span><span class="s2">&quot;faces&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_faces</span>
+            <span class="n">frame_dict</span><span class="p">[</span><span class="s2">&quot;kpts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_kpts</span>
+            <span class="n">frame_dict</span><span class="p">[</span><span class="s2">&quot;detections&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_detections</span>
+            <span class="n">frame_dict</span><span class="p">[</span><span class="s2">&quot;scores&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_scores</span>
+        <span class="k">return</span> <span class="n">frame_dict</span>
+
+<div class="viewcode-block" id="FaceExtractor.process_videos">
+<a class="viewcode-back" href="../../../../../mukh.face_detection.models.blazeface.html#mukh.face_detection.models.blazeface.face_extract.FaceExtractor.process_videos">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_videos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span> <span class="n">filenames</span><span class="p">,</span> <span class="n">video_idxs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;For the specified selection of videos, grabs one or more frames</span>
+<span class="sd">        from each video, runs the face detector, and tries to find the faces</span>
+<span class="sd">        in each frame.</span>
+
+<span class="sd">        The frames are split into tiles, and the tiles from the different videos</span>
+<span class="sd">        are concatenated into a single batch. This means the face detector gets</span>
+<span class="sd">        a batch of size len(video_idxs) * num_frames * num_tiles (usually 3).</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            input_dir: base folder where the video files are stored</span>
+<span class="sd">            filenames: list of all video files in the input_dir</span>
+<span class="sd">            video_idxs: one or more indices from the filenames list; these</span>
+<span class="sd">                are the videos we&#39;ll actually process</span>
+
+<span class="sd">        Returns a list of dictionaries, one for each frame read from each video.</span>
+
+<span class="sd">        This dictionary contains:</span>
+<span class="sd">            - video_idx: the video this frame was taken from</span>
+<span class="sd">            - frame_idx: the index of the frame in the video</span>
+<span class="sd">            - frame_w, frame_h: original dimensions of the frame</span>
+<span class="sd">            - faces: a list containing zero or more NumPy arrays with a face crop</span>
+<span class="sd">            - scores: a list array with the confidence score for each face crop</span>
+
+<span class="sd">        If reading a video failed for some reason, it will not appear in the</span>
+<span class="sd">        output array. Note that there&#39;s no guarantee a given video will actually</span>
+<span class="sd">        have num_frames results (as soon as a reading problem is encountered for</span>
+<span class="sd">        a video, we continue with the next video).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">target_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">facedet</span><span class="o">.</span><span class="n">input_size</span>
+
+        <span class="n">videos_read</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">frames_read</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">tiles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">resize_info</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">video_idx</span> <span class="ow">in</span> <span class="n">video_idxs</span><span class="p">:</span>
+            <span class="c1"># Read the full-size frames from this video.</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">filenames</span><span class="p">[</span><span class="n">video_idx</span><span class="p">]</span>
+            <span class="n">video_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">video_read_fn</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+
+            <span class="c1"># Error? Then skip this video.</span>
+            <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">videos_read</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">video_idx</span><span class="p">)</span>
+
+            <span class="c1"># Keep track of the original frames (need them later).</span>
+            <span class="n">my_frames</span><span class="p">,</span> <span class="n">my_idxs</span> <span class="o">=</span> <span class="n">result</span>
+            <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">my_frames</span><span class="p">)</span>
+            <span class="n">frames_read</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">my_idxs</span><span class="p">)</span>
+
+            <span class="c1"># Split the frames into several tiles. Resize the tiles to 128x128.</span>
+            <span class="n">my_tiles</span><span class="p">,</span> <span class="n">my_resize_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tile_frames</span><span class="p">(</span><span class="n">my_frames</span><span class="p">,</span> <span class="n">target_size</span><span class="p">)</span>
+            <span class="n">tiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">my_tiles</span><span class="p">)</span>
+            <span class="n">resize_info</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">my_resize_info</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tiles</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="c1"># Put all the tiles for all the frames from all the videos into</span>
+        <span class="c1"># a single batch.</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">tiles</span><span class="p">)</span>
+
+        <span class="c1"># Run the face detector. The result is a list of PyTorch tensors,</span>
+        <span class="c1"># one for each image in the batch.</span>
+        <span class="n">all_detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">facedet</span><span class="o">.</span><span class="n">predict_on_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">apply_nms</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">offs</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tiles</span><span class="p">)):</span>
+            <span class="c1"># Not all videos may have the same number of tiles, so find which</span>
+            <span class="c1"># detections go with which video.</span>
+            <span class="n">num_tiles</span> <span class="o">=</span> <span class="n">tiles</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">detections</span> <span class="o">=</span> <span class="n">all_detections</span><span class="p">[</span><span class="n">offs</span> <span class="p">:</span> <span class="n">offs</span> <span class="o">+</span> <span class="n">num_tiles</span><span class="p">]</span>
+            <span class="n">offs</span> <span class="o">+=</span> <span class="n">num_tiles</span>
+
+            <span class="c1"># Convert the detections from 128x128 back to the original frame size.</span>
+            <span class="n">detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resize_detections</span><span class="p">(</span>
+                <span class="n">detections</span><span class="p">,</span> <span class="n">target_size</span><span class="p">,</span> <span class="n">resize_info</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Because we have several tiles for each frame, combine the predictions</span>
+            <span class="c1"># from these tiles. The result is a list of PyTorch tensors, but now one</span>
+            <span class="c1"># for each frame (rather than each tile).</span>
+            <span class="n">num_frames</span> <span class="o">=</span> <span class="n">frames</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">frame_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">frames</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">frames</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_untile_detections</span><span class="p">(</span><span class="n">num_frames</span><span class="p">,</span> <span class="n">frame_size</span><span class="p">,</span> <span class="n">detections</span><span class="p">)</span>
+
+            <span class="c1"># The same face may have been detected in multiple tiles, so filter out</span>
+            <span class="c1"># overlapping detections. This is done separately for each frame.</span>
+            <span class="n">detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">facedet</span><span class="o">.</span><span class="n">nms</span><span class="p">(</span><span class="n">detections</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">detections</span><span class="p">)):</span>
+                <span class="c1"># Crop the faces out of the original frame.</span>
+                <span class="n">frameref_detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_margin_to_detections</span><span class="p">(</span>
+                    <span class="n">detections</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">frame_size</span><span class="p">,</span> <span class="mf">0.2</span>
+                <span class="p">)</span>
+                <span class="n">faces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_crop_faces</span><span class="p">(</span><span class="n">frames</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">frameref_detections</span><span class="p">)</span>
+                <span class="n">kpts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_crop_kpts</span><span class="p">(</span><span class="n">frames</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">detections</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.3</span><span class="p">)</span>
+
+                <span class="c1"># Add additional information about the frame and detections.</span>
+                <span class="n">scores</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">detections</span><span class="p">[</span><span class="n">i</span><span class="p">][:,</span> <span class="mi">16</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+                <span class="n">frame_dict</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;video_idx&quot;</span><span class="p">:</span> <span class="n">videos_read</span><span class="p">[</span><span class="n">v</span><span class="p">],</span>
+                    <span class="s2">&quot;frame_idx&quot;</span><span class="p">:</span> <span class="n">frames_read</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;frame_w&quot;</span><span class="p">:</span> <span class="n">frame_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="s2">&quot;frame_h&quot;</span><span class="p">:</span> <span class="n">frame_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="s2">&quot;frame&quot;</span><span class="p">:</span> <span class="n">frames</span><span class="p">[</span><span class="n">v</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                    <span class="s2">&quot;faces&quot;</span><span class="p">:</span> <span class="n">faces</span><span class="p">,</span>
+                    <span class="s2">&quot;kpts&quot;</span><span class="p">:</span> <span class="n">kpts</span><span class="p">,</span>
+                    <span class="s2">&quot;detections&quot;</span><span class="p">:</span> <span class="n">frameref_detections</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
+                    <span class="s2">&quot;scores&quot;</span><span class="p">:</span> <span class="n">scores</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="c1"># Sort faces by descending confidence</span>
+                <span class="n">frame_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_soft_faces_by_descending_score</span><span class="p">(</span><span class="n">frame_dict</span><span class="p">)</span>
+
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frame_dict</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="FaceExtractor.process_video">
+<a class="viewcode-back" href="../../../../../mukh.face_detection.models.blazeface.html#mukh.face_detection.models.blazeface.face_extract.FaceExtractor.process_video">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_video</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">video_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convenience method for doing face extraction on a single video.&quot;&quot;&quot;</span>
+        <span class="n">input_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">video_path</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_videos</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">filenames</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_tile_frames</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">frames</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">target_size</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Splits each frame into several smaller, partially overlapping tiles</span>
+<span class="sd">        and resizes each tile to target_size.</span>
+
+<span class="sd">        After a bunch of experimentation, I found that for a 1920x1080 video,</span>
+<span class="sd">        BlazeFace works better on three 1080x1080 windows. These overlap by 420</span>
+<span class="sd">        pixels. (Two windows also work but it&#39;s best to have a clean center crop</span>
+<span class="sd">        in there as well.)</span>
+
+<span class="sd">        I also tried 6 windows of size 720x720 (horizontally: 720|360, 360|720;</span>
+<span class="sd">        vertically: 720|1200, 480|720|480, 1200|720) but that gives many false</span>
+<span class="sd">        positives when a window has no face in it.</span>
+
+<span class="sd">        For a video in portrait orientation (1080x1920), we only take a single</span>
+<span class="sd">        crop of the top-most 1080 pixels. If we split up the video vertically,</span>
+<span class="sd">        then we might get false positives again.</span>
+
+<span class="sd">        (NOTE: Not all videos are necessarily 1080p but the code can handle this.)</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            frames: NumPy array of shape (num_frames, height, width, 3)</span>
+<span class="sd">            target_size: (width, height)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            - a new (num_frames * N, target_size[1], target_size[0], 3) array</span>
+<span class="sd">              where N is the number of tiles used.</span>
+<span class="sd">            - a list [scale_w, scale_h, offset_x, offset_y] that describes how</span>
+<span class="sd">              to map the resized and cropped tiles back to the original image</span>
+<span class="sd">              coordinates. This is needed for scaling up the face detections</span>
+<span class="sd">              from the smaller image to the original image, so we can take the</span>
+<span class="sd">              face crops in the original coordinate space.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">num_frames</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">frames</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="n">num_h</span><span class="p">,</span> <span class="n">num_v</span><span class="p">,</span> <span class="n">split_size</span><span class="p">,</span> <span class="n">x_step</span><span class="p">,</span> <span class="n">y_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tiles_params</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span>
+
+        <span class="n">splits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">num_frames</span> <span class="o">*</span> <span class="n">num_v</span> <span class="o">*</span> <span class="n">num_h</span><span class="p">,</span> <span class="n">target_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">target_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">):</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_v</span><span class="p">):</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_h</span><span class="p">):</span>
+                    <span class="n">crop</span> <span class="o">=</span> <span class="n">frames</span><span class="p">[</span><span class="n">f</span><span class="p">,</span> <span class="n">y</span> <span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">split_size</span><span class="p">,</span> <span class="n">x</span> <span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">split_size</span><span class="p">,</span> <span class="p">:]</span>
+                    <span class="n">splits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
+                        <span class="n">crop</span><span class="p">,</span> <span class="n">target_size</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_AREA</span>
+                    <span class="p">)</span>
+                    <span class="n">x</span> <span class="o">+=</span> <span class="n">x_step</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">y</span> <span class="o">+=</span> <span class="n">y_step</span>
+
+        <span class="n">resize_info</span> <span class="o">=</span> <span class="p">[</span><span class="n">split_size</span> <span class="o">/</span> <span class="n">target_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">split_size</span> <span class="o">/</span> <span class="n">target_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">splits</span><span class="p">,</span> <span class="n">resize_info</span>
+
+<div class="viewcode-block" id="FaceExtractor.get_tiles_params">
+<a class="viewcode-back" href="../../../../../mukh.face_detection.models.blazeface.html#mukh.face_detection.models.blazeface.face_extract.FaceExtractor.get_tiles_params">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tiles_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">):</span>
+        <span class="n">split_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="mi">720</span><span class="p">)</span>
+        <span class="n">x_step</span> <span class="o">=</span> <span class="p">(</span><span class="n">W</span> <span class="o">-</span> <span class="n">split_size</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">y_step</span> <span class="o">=</span> <span class="p">(</span><span class="n">H</span> <span class="o">-</span> <span class="n">split_size</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">num_v</span> <span class="o">=</span> <span class="p">(</span><span class="n">H</span> <span class="o">-</span> <span class="n">split_size</span><span class="p">)</span> <span class="o">//</span> <span class="n">y_step</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">y_step</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">num_h</span> <span class="o">=</span> <span class="p">(</span><span class="n">W</span> <span class="o">-</span> <span class="n">split_size</span><span class="p">)</span> <span class="o">//</span> <span class="n">x_step</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">x_step</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">num_h</span><span class="p">,</span> <span class="n">num_v</span><span class="p">,</span> <span class="n">split_size</span><span class="p">,</span> <span class="n">x_step</span><span class="p">,</span> <span class="n">y_step</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resize_detections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detections</span><span class="p">,</span> <span class="n">target_size</span><span class="p">,</span> <span class="n">resize_info</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts a list of face detections back to the original</span>
+<span class="sd">        coordinate system.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            detections: a list containing PyTorch tensors of shape (num_faces, 17)</span>
+<span class="sd">            target_size: (width, height)</span>
+<span class="sd">            resize_info: [scale_w, scale_h, offset_x, offset_y]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">projected</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">target_w</span><span class="p">,</span> <span class="n">target_h</span> <span class="o">=</span> <span class="n">target_size</span>
+        <span class="n">scale_w</span><span class="p">,</span> <span class="n">scale_h</span><span class="p">,</span> <span class="n">offset_x</span><span class="p">,</span> <span class="n">offset_y</span> <span class="o">=</span> <span class="n">resize_info</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">detections</span><span class="p">)):</span>
+            <span class="n">detection</span> <span class="o">=</span> <span class="n">detections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+
+            <span class="c1"># ymin, xmin, ymax, xmax</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+                <span class="n">detection</span><span class="p">[:,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">detection</span><span class="p">[:,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">target_h</span> <span class="o">-</span> <span class="n">offset_y</span>
+                <span class="p">)</span> <span class="o">*</span> <span class="n">scale_h</span>
+                <span class="n">detection</span><span class="p">[:,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">detection</span><span class="p">[:,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">target_w</span> <span class="o">-</span> <span class="n">offset_x</span>
+                <span class="p">)</span> <span class="o">*</span> <span class="n">scale_w</span>
+
+            <span class="c1"># keypoints are x,y</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span>
+                <span class="n">detection</span><span class="p">[:,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">detection</span><span class="p">[:,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">target_w</span> <span class="o">-</span> <span class="n">offset_x</span>
+                <span class="p">)</span> <span class="o">*</span> <span class="n">scale_w</span>
+                <span class="n">detection</span><span class="p">[:,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">detection</span><span class="p">[:,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">target_h</span> <span class="o">-</span> <span class="n">offset_y</span>
+                <span class="p">)</span> <span class="o">*</span> <span class="n">scale_h</span>
+
+            <span class="n">projected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">detection</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">projected</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_untile_detections</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">frame_size</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+        <span class="n">detections</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;With N tiles per frame, there also are N times as many detections.</span>
+<span class="sd">        This function groups together the detections for a given frame; it is</span>
+<span class="sd">        the complement to tile_frames().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">combined_detections</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">W</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="n">frame_size</span>
+
+        <span class="n">num_h</span><span class="p">,</span> <span class="n">num_v</span><span class="p">,</span> <span class="n">split_size</span><span class="p">,</span> <span class="n">x_step</span><span class="p">,</span> <span class="n">y_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tiles_params</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">):</span>
+            <span class="n">detections_for_frame</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_v</span><span class="p">):</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_h</span><span class="p">):</span>
+                    <span class="c1"># Adjust the coordinates based on the split positions.</span>
+                    <span class="n">detection</span> <span class="o">=</span> <span class="n">detections</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">detection</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+                            <span class="n">detection</span><span class="p">[:,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">y</span>
+                            <span class="n">detection</span><span class="p">[:,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">x</span>
+                        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span>
+                            <span class="n">detection</span><span class="p">[:,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">x</span>
+                            <span class="n">detection</span><span class="p">[:,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">y</span>
+
+                    <span class="n">detections_for_frame</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">detection</span><span class="p">)</span>
+                    <span class="n">x</span> <span class="o">+=</span> <span class="n">x_step</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">y</span> <span class="o">+=</span> <span class="n">y_step</span>
+
+            <span class="n">combined_detections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">detections_for_frame</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">combined_detections</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_margin_to_detections</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">detections</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">frame_size</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">margin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Expands the face bounding box.</span>
+
+<span class="sd">        NOTE: The face detections often do not include the forehead, which</span>
+<span class="sd">        is why we use twice the margin for ymin.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            detections: a PyTorch tensor of shape (num_detections, 17)</span>
+<span class="sd">            frame_size: maximum (width, height)</span>
+<span class="sd">            margin: a percentage of the bounding box&#39;s height</span>
+
+<span class="sd">        Returns a PyTorch tensor of shape (num_detections, 17).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">margin</span> <span class="o">*</span> <span class="p">(</span><span class="n">detections</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">detections</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]))</span>
+        <span class="n">detections</span> <span class="o">=</span> <span class="n">detections</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+        <span class="n">detections</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">detections</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">offset</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># ymin</span>
+        <span class="n">detections</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">detections</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">offset</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># xmin</span>
+        <span class="n">detections</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span>
+            <span class="n">detections</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">frame_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>  <span class="c1"># ymax</span>
+        <span class="n">detections</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span>
+            <span class="n">detections</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">frame_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>  <span class="c1"># xmax</span>
+        <span class="k">return</span> <span class="n">detections</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_crop_faces</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">detections</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Copies the face region(s) from the given frame into a set</span>
+<span class="sd">        of new NumPy arrays.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            frame: a NumPy array of shape (H, W, 3)</span>
+<span class="sd">            detections: a PyTorch tensor of shape (num_detections, 17)</span>
+
+<span class="sd">        Returns a list of NumPy arrays, one for each face crop. If there</span>
+<span class="sd">        are no faces detected for this frame, returns an empty list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">faces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">detections</span><span class="p">)):</span>
+            <span class="n">ymin</span><span class="p">,</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="n">detections</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">face</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">,</span> <span class="n">xmin</span><span class="p">:</span><span class="n">xmax</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">faces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">face</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">faces</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_crop_kpts</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">detections</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">face_fraction</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Copies the parts region(s) from the given frame into a set</span>
+<span class="sd">        of new NumPy arrays.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            frame: a NumPy array of shape (H, W, 3)</span>
+<span class="sd">            detections: a PyTorch tensor of shape (num_detections, 17)</span>
+<span class="sd">            face_fraction: float between 0 and 1 indicating how big are the parts to be extracted w.r.t the whole face</span>
+
+<span class="sd">        Returns a list of NumPy arrays, one for each face crop. If there</span>
+<span class="sd">        are no faces detected for this frame, returns an empty list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">faces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">detections</span><span class="p">)):</span>
+            <span class="n">kpts</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                <span class="n">face_fraction</span>
+                <span class="o">*</span> <span class="nb">min</span><span class="p">(</span>
+                    <span class="n">detections</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">detections</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="n">detections</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">detections</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">kpts_coords</span> <span class="o">=</span> <span class="n">detections</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span><span class="mi">16</span><span class="p">]</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">kpidx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+                <span class="n">kpx</span><span class="p">,</span> <span class="n">kpy</span> <span class="o">=</span> <span class="n">kpts_coords</span><span class="p">[</span><span class="n">kpidx</span> <span class="o">*</span> <span class="mi">2</span> <span class="p">:</span> <span class="n">kpidx</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="n">kpt</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span>
+                    <span class="n">kpy</span> <span class="o">-</span> <span class="n">size</span> <span class="o">//</span> <span class="mi">2</span> <span class="p">:</span> <span class="n">kpy</span> <span class="o">-</span> <span class="n">size</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">size</span><span class="p">,</span>
+                    <span class="n">kpx</span> <span class="o">-</span> <span class="n">size</span> <span class="o">//</span> <span class="mi">2</span> <span class="p">:</span> <span class="n">kpx</span> <span class="o">-</span> <span class="n">size</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">size</span><span class="p">,</span>
+                <span class="p">]</span>
+                <span class="n">kpts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kpt</span><span class="p">)</span>
+            <span class="n">faces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kpts</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">faces</span>
+
+<div class="viewcode-block" id="FaceExtractor.remove_large_crops">
+<a class="viewcode-back" href="../../../../../mukh.face_detection.models.blazeface.html#mukh.face_detection.models.blazeface.face_extract.FaceExtractor.remove_large_crops">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_large_crops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crops</span><span class="p">,</span> <span class="n">pct</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Removes faces from the results if they take up more than X%</span>
+<span class="sd">        of the video. Such a face is likely a false positive.</span>
+
+<span class="sd">        This is an optional postprocessing step. Modifies the original</span>
+<span class="sd">        data structure.</span>
+
+<span class="sd">        Arguments:</span>
+<span class="sd">            crops: a list of dictionaries with face crop data</span>
+<span class="sd">            pct: maximum portion of the frame a crop may take up</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">crops</span><span class="p">)):</span>
+            <span class="n">frame_data</span> <span class="o">=</span> <span class="n">crops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">video_area</span> <span class="o">=</span> <span class="n">frame_data</span><span class="p">[</span><span class="s2">&quot;frame_w&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">frame_data</span><span class="p">[</span><span class="s2">&quot;frame_h&quot;</span><span class="p">]</span>
+            <span class="n">faces</span> <span class="o">=</span> <span class="n">frame_data</span><span class="p">[</span><span class="s2">&quot;faces&quot;</span><span class="p">]</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">frame_data</span><span class="p">[</span><span class="s2">&quot;scores&quot;</span><span class="p">]</span>
+            <span class="n">new_faces</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">new_scores</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">faces</span><span class="p">)):</span>
+                <span class="n">face</span> <span class="o">=</span> <span class="n">faces</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">face_H</span><span class="p">,</span> <span class="n">face_W</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">face</span><span class="o">.</span><span class="n">shape</span>
+                <span class="n">face_area</span> <span class="o">=</span> <span class="n">face_H</span> <span class="o">*</span> <span class="n">face_W</span>
+                <span class="k">if</span> <span class="n">face_area</span> <span class="o">/</span> <span class="n">video_area</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
+                    <span class="n">new_faces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">face</span><span class="p">)</span>
+                    <span class="n">new_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">frame_data</span><span class="p">[</span><span class="s2">&quot;faces&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_faces</span>
+            <span class="n">frame_data</span><span class="p">[</span><span class="s2">&quot;scores&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_scores</span></div>
+
+
+<div class="viewcode-block" id="FaceExtractor.keep_only_best_face">
+<a class="viewcode-back" href="../../../../../mukh.face_detection.models.blazeface.html#mukh.face_detection.models.blazeface.face_extract.FaceExtractor.keep_only_best_face">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">keep_only_best_face</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crops</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;For each frame, only keeps the face with the highest confidence.</span>
+
+<span class="sd">        This gets rid of false positives, but obviously is problematic for</span>
+<span class="sd">        videos with two people!</span>
+
+<span class="sd">        This is an optional postprocessing step. Modifies the original</span>
+<span class="sd">        data structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">crops</span><span class="p">)):</span>
+            <span class="n">frame_data</span> <span class="o">=</span> <span class="n">crops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame_data</span><span class="p">[</span><span class="s2">&quot;faces&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">frame_data</span><span class="p">[</span><span class="s2">&quot;faces&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">frame_data</span><span class="p">[</span><span class="s2">&quot;faces&quot;</span><span class="p">][:</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">frame_data</span><span class="p">[</span><span class="s2">&quot;scores&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">frame_data</span><span class="p">[</span><span class="s2">&quot;scores&quot;</span><span class="p">][:</span><span class="mi">1</span><span class="p">]</span></div>
+</div>
+
+
+    <span class="c1"># TODO: def filter_likely_false_positives(self, crops):</span>
+    <span class="c1">#   if only some frames have more than 1 face, it&#39;s likely a false positive</span>
+    <span class="c1">#   if most frames have more than 1 face, it&#39;s probably two people</span>
+    <span class="c1">#   so find the % of frames with &gt; 1 face; if &gt; 0.X, keep the two best faces</span>
+
+    <span class="c1"># TODO: def filter_by_score(self, crops, min_score) to remove any</span>
+    <span class="c1"># crops with a confidence score lower than min_score</span>
+
+    <span class="c1"># TODO: def sort_by_histogram(self, crops) for videos with 2 people.</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Ishan Dutta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

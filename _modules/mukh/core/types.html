@@ -69,7 +69,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mukh.core.types</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span></span><span class="sd">&quot;&quot;&quot;Core type definitions for the mukh package.</span>
+
+<span class="sd">This module contains shared data structures and type definitions used across</span>
+<span class="sd">different modules in the package.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -79,11 +85,21 @@
 <a class="viewcode-back" href="../../../mukh.core.html#mukh.core.types.BoundingBox">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">BoundingBox</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a bounding box with coordinates and confidence score.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        x1: Left x coordinate</span>
+<span class="sd">        y1: Top y coordinate</span>
+<span class="sd">        x2: Right x coordinate</span>
+<span class="sd">        y2: Bottom y coordinate</span>
+<span class="sd">        confidence: Detection confidence score (0.0 to 1.0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">x1</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">y1</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">x2</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">y2</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">width</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -99,8 +115,35 @@
 <a class="viewcode-back" href="../../../mukh.core.html#mukh.core.types.FaceDetection">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FaceDetection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a detected face with bounding box and optional landmarks.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        bbox: Bounding box coordinates and confidence</span>
+<span class="sd">        landmarks: Optional array of facial landmark coordinates</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">bbox</span><span class="p">:</span> <span class="n">BoundingBox</span>
     <span class="n">landmarks</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="DeepfakeDetection">
+<a class="viewcode-back" href="../../../mukh.core.html#mukh.core.types.DeepfakeDetection">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeepfakeDetection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a deepfake detection result.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        frame_number: Frame number (0 for images, frame index for videos)</span>
+<span class="sd">        is_deepfake: Whether the content is detected as deepfake</span>
+<span class="sd">        confidence: Detection confidence score (0.0 to 1.0)</span>
+<span class="sd">        model_name: Name of the model used for detection</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">frame_number</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">is_deepfake</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span></div>
 
 </pre></div>
 

@@ -323,6 +323,214 @@ E.g.:</p>
 </dd></dl>
 
 </section>
+<section id="module-mukh.face_detection.models.blazeface.face_extract">
+<span id="mukh-face-detection-models-blazeface-face-extract-module"></span><h2>mukh.face_detection.models.blazeface.face_extract module<a class="headerlink" href="#module-mukh.face_detection.models.blazeface.face_extract" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.face_extract.FaceExtractor">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.face_detection.models.blazeface.face_extract.</span></span><span class="sig-name descname"><span class="pre">FaceExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_read_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">facedet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mukh.deepfake_detection.models.efficientnet.blazeface.html#mukh.deepfake_detection.models.efficientnet.blazeface.blazeface.BlazeFace" title="mukh.deepfake_detection.models.efficientnet.blazeface.blazeface.BlazeFace"><span class="pre">BlazeFace</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/face_extract.html#FaceExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.face_extract.FaceExtractor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for face extraction workflow.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.face_extract.FaceExtractor.get_tiles_params">
+<span class="sig-name descname"><span class="pre">get_tiles_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">W</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/face_extract.html#FaceExtractor.get_tiles_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.face_extract.FaceExtractor.get_tiles_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.face_extract.FaceExtractor.keep_only_best_face">
+<span class="sig-name descname"><span class="pre">keep_only_best_face</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crops</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/face_extract.html#FaceExtractor.keep_only_best_face"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.face_extract.FaceExtractor.keep_only_best_face" title="Link to this definition"></a></dt>
+<dd><p>For each frame, only keeps the face with the highest confidence.</p>
+<p>This gets rid of false positives, but obviously is problematic for
+videos with two people!</p>
+<p>This is an optional postprocessing step. Modifies the original
+data structure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.face_extract.FaceExtractor.process_image">
+<span class="sig-name descname"><span class="pre">process_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Image</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/face_extract.html#FaceExtractor.process_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.face_extract.FaceExtractor.process_image" title="Link to this definition"></a></dt>
+<dd><p>Process a single image
+:param path: Path to the image
+:param img: image
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.face_extract.FaceExtractor.process_video">
+<span class="sig-name descname"><span class="pre">process_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">video_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/face_extract.html#FaceExtractor.process_video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.face_extract.FaceExtractor.process_video" title="Link to this definition"></a></dt>
+<dd><p>Convenience method for doing face extraction on a single video.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.face_extract.FaceExtractor.process_videos">
+<span class="sig-name descname"><span class="pre">process_videos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">video_idxs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/face_extract.html#FaceExtractor.process_videos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.face_extract.FaceExtractor.process_videos" title="Link to this definition"></a></dt>
+<dd><p>For the specified selection of videos, grabs one or more frames
+from each video, runs the face detector, and tries to find the faces
+in each frame.</p>
+<p>The frames are split into tiles, and the tiles from the different videos
+are concatenated into a single batch. This means the face detector gets
+a batch of size len(video_idxs) * num_frames * num_tiles (usually 3).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_dir</strong> – base folder where the video files are stored</p></li>
+<li><p><strong>filenames</strong> – list of all video files in the input_dir</p></li>
+<li><p><strong>video_idxs</strong> – one or more indices from the filenames list; these
+are the videos we’ll actually process</p></li>
+</ul>
+</dd>
+</dl>
+<p>Returns a list of dictionaries, one for each frame read from each video.</p>
+<dl class="simple">
+<dt>This dictionary contains:</dt><dd><ul class="simple">
+<li><p>video_idx: the video this frame was taken from</p></li>
+<li><p>frame_idx: the index of the frame in the video</p></li>
+<li><p>frame_w, frame_h: original dimensions of the frame</p></li>
+<li><p>faces: a list containing zero or more NumPy arrays with a face crop</p></li>
+<li><p>scores: a list array with the confidence score for each face crop</p></li>
+</ul>
+</dd>
+</dl>
+<p>If reading a video failed for some reason, it will not appear in the
+output array. Note that there’s no guarantee a given video will actually
+have num_frames results (as soon as a reading problem is encountered for
+a video, we continue with the next video).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.face_extract.FaceExtractor.remove_large_crops">
+<span class="sig-name descname"><span class="pre">remove_large_crops</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/face_extract.html#FaceExtractor.remove_large_crops"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.face_extract.FaceExtractor.remove_large_crops" title="Link to this definition"></a></dt>
+<dd><p>Removes faces from the results if they take up more than X%
+of the video. Such a face is likely a false positive.</p>
+<p>This is an optional postprocessing step. Modifies the original
+data structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>crops</strong> – a list of dictionaries with face crop data</p></li>
+<li><p><strong>pct</strong> – maximum portion of the frame a crop may take up</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-mukh.face_detection.models.blazeface.read_video">
+<span id="mukh-face-detection-models-blazeface-read-video-module"></span><h2>mukh.face_detection.models.blazeface.read_video module<a class="headerlink" href="#module-mukh.face_detection.models.blazeface.read_video" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.read_video.VideoReader">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.face_detection.models.blazeface.read_video.</span></span><span class="sig-name descname"><span class="pre">VideoReader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/read_video.html#VideoReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.read_video.VideoReader" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Helper class for reading one or more frames from a video file.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.read_video.VideoReader.read_frame_at_index">
+<span class="sig-name descname"><span class="pre">read_frame_at_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/read_video.html#VideoReader.read_frame_at_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.read_video.VideoReader.read_frame_at_index" title="Link to this definition"></a></dt>
+<dd><p>Reads a single frame from a video.</p>
+<p>If you just want to read a single frame from the video, this is more
+efficient than scanning through the video to find the frame. However,
+for reading multiple frames it’s not efficient.</p>
+<p>My guess is that a “streaming” approach is more efficient than a
+“random access” approach because, unless you happen to grab a keyframe,
+the decoder still needs to read all the previous frames in order to
+reconstruct the one you’re asking for.</p>
+<p>Returns a NumPy array of shape (1, H, W, 3) and the index of the frame,
+or None if reading failed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.read_video.VideoReader.read_frames">
+<span class="sig-name descname"><span class="pre">read_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jitter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/read_video.html#VideoReader.read_frames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.read_video.VideoReader.read_frames" title="Link to this definition"></a></dt>
+<dd><p>Reads frames that are always evenly spaced throughout the video.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – the video file</p></li>
+<li><p><strong>num_frames</strong> – how many frames to read, -1 means the entire video
+(warning: this will take up a lot of memory!)</p></li>
+<li><p><strong>jitter</strong> – if not 0, adds small random offsets to the frame indices;
+this is useful so we don’t always land on even or odd frames</p></li>
+<li><p><strong>seed</strong> – random seed for jittering; if you set this to a fixed value,
+you probably want to set it only on the first video</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.read_video.VideoReader.read_frames_at_indices">
+<span class="sig-name descname"><span class="pre">read_frames_at_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_idxs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/read_video.html#VideoReader.read_frames_at_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.read_video.VideoReader.read_frames_at_indices" title="Link to this definition"></a></dt>
+<dd><p>Reads frames from a video and puts them into a NumPy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – the video file</p></li>
+<li><p><strong>frame_idxs</strong> – a list of frame indices. Important: should be
+sorted from low-to-high! If an index appears multiple
+times, the frame is still read only once.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>a NumPy array of shape (num_frames, height, width, 3)</p></li>
+<li><p>a list of the frame indices that were read</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p>Reading stops if loading a frame fails, in which case the first
+dimension returned may actually be less than num_frames.</p>
+<p>Returns None if an exception is thrown for any reason, or if no
+frames were read.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.read_video.VideoReader.read_middle_frame">
+<span class="sig-name descname"><span class="pre">read_middle_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/read_video.html#VideoReader.read_middle_frame"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.read_video.VideoReader.read_middle_frame" title="Link to this definition"></a></dt>
+<dd><p>Reads the frame from the middle of the video.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.read_video.VideoReader.read_random_frames">
+<span class="sig-name descname"><span class="pre">read_random_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/read_video.html#VideoReader.read_random_frames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.read_video.VideoReader.read_random_frames" title="Link to this definition"></a></dt>
+<dd><p>Picks the frame indices at random.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – the video file</p></li>
+<li><p><strong>num_frames</strong> – how many frames to read, -1 means the entire video
+(warning: this will take up a lot of memory!)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.read_video.VideoReaderIspl">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mukh.face_detection.models.blazeface.read_video.</span></span><span class="sig-name descname"><span class="pre">VideoReaderIspl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">insets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/read_video.html#VideoReaderIspl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.read_video.VideoReaderIspl" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#mukh.face_detection.models.blazeface.read_video.VideoReader" title="mukh.face_detection.models.blazeface.read_video.VideoReader"><code class="xref py py-class docutils literal notranslate"><span class="pre">VideoReader</span></code></a></p>
+<p>Derived VideoReader class with overriden read_frames method</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="mukh.face_detection.models.blazeface.read_video.VideoReaderIspl.read_frames_with_hop">
+<span class="sig-name descname"><span class="pre">read_frames_with_hop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_frames</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/face_detection/models/blazeface/read_video.html#VideoReaderIspl.read_frames_with_hop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.face_detection.models.blazeface.read_video.VideoReaderIspl.read_frames_with_hop" title="Link to this definition"></a></dt>
+<dd><p>Reads frames up to a certain number spaced throughout the video with a rate decided by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – the video file</p></li>
+<li><p><strong>num_frames</strong> – how many frames to read, -1 means the entire video
+(warning: this will take up a lot of memory!)</p></li>
+<li><p><strong>fps</strong> – how many frames per second to pick</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-mukh.face_detection.models.blazeface">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mukh.face_detection.models.blazeface" title="Link to this heading"></a></h2>
 </section>

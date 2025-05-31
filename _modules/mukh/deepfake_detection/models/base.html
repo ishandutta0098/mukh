@@ -1,0 +1,532 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mukh.deepfake_detection.models.base &mdash; mukh 0.0.37 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            mukh
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">mukh</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">mukh</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mukh.deepfake_detection.models.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mukh.deepfake_detection.models.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Base class defining the interface for deepfake detection implementations.</span>
+
+<span class="sd">This module provides the abstract base class that all deepfake detector implementations</span>
+<span class="sd">must inherit from, ensuring a consistent interface across different models.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">...core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeepfakeDetection</span>
+
+
+<div class="viewcode-block" id="BaseDeepfakeDetector">
+<a class="viewcode-back" href="../../../../mukh.deepfake_detection.models.html#mukh.deepfake_detection.models.base.BaseDeepfakeDetector">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseDeepfakeDetector</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for deepfake detector implementations.</span>
+
+<span class="sd">    All deepfake detector implementations must inherit from this class and implement</span>
+<span class="sd">    the required abstract methods.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        confidence_threshold: Float threshold (0-1) for detection confidence.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">confidence_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the deepfake detector.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            confidence_threshold: Minimum confidence threshold for detections.</span>
+<span class="sd">                Defaults to 0.5.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span> <span class="o">=</span> <span class="n">confidence_threshold</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads an image from disk in BGR format.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_path: Path to the image file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The loaded image in BGR format.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the image cannot be loaded from the given path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">image_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Image path does not exist: </span><span class="si">{</span><span class="n">image_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not load image from: </span><span class="si">{</span><span class="n">image_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">image</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_video</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads a video from disk.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            video_path: Path to the video file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            cv2.VideoCapture: The loaded video capture object.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the video cannot be loaded from the given path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">video_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Video path does not exist: </span><span class="si">{</span><span class="n">video_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cap</span><span class="o">.</span><span class="n">isOpened</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not load video from: </span><span class="si">{</span><span class="n">video_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cap</span>
+
+<div class="viewcode-block" id="BaseDeepfakeDetector.detect_image">
+<a class="viewcode-back" href="../../../../mukh.deepfake_detection.models.html#mukh.deepfake_detection.models.base.BaseDeepfakeDetector.detect_image">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect_image</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">save_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;deepfake_detections.csv&quot;</span><span class="p">,</span>
+        <span class="n">save_annotated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DeepfakeDetection</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detects deepfake in the given image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_path: Path to the input image.</span>
+<span class="sd">            save_csv: Whether to save detection results to CSV file.</span>
+<span class="sd">            csv_path: Path where to save the CSV file.</span>
+<span class="sd">            save_annotated: Whether to save annotated image with results.</span>
+<span class="sd">            output_folder: Folder path where to save annotated images.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DeepfakeDetection object containing detection results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseDeepfakeDetector.detect_video">
+<a class="viewcode-back" href="../../../../mukh.deepfake_detection.models.html#mukh.deepfake_detection.models.base.BaseDeepfakeDetector.detect_video">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect_video</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">save_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;deepfake_detections.csv&quot;</span><span class="p">,</span>
+        <span class="n">save_annotated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+        <span class="n">frame_interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detects deepfake in the given video.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            video_path: Path to the input video.</span>
+<span class="sd">            save_csv: Whether to save detection results to CSV file.</span>
+<span class="sd">            csv_path: Path where to save the CSV file.</span>
+<span class="sd">            save_annotated: Whether to save annotated video with results.</span>
+<span class="sd">            output_folder: Folder path where to save annotated videos.</span>
+<span class="sd">            frame_interval: Interval between frames to analyze (default: 30).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of DeepfakeDetection objects for analyzed frames.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseDeepfakeDetector.detect">
+<a class="viewcode-back" href="../../../../mukh.deepfake_detection.models.html#mukh.deepfake_detection.models.base.BaseDeepfakeDetector.detect">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">media_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">save_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;deepfake_detections.csv&quot;</span><span class="p">,</span>
+        <span class="n">save_annotated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+        <span class="n">frame_interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detects deepfake in the given image or video.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            media_path: Path to the input image or video.</span>
+<span class="sd">            save_csv: Whether to save detection results to CSV file.</span>
+<span class="sd">            csv_path: Path where to save the CSV file.</span>
+<span class="sd">            save_annotated: Whether to save annotated media with results.</span>
+<span class="sd">            output_folder: Folder path where to save annotated media.</span>
+<span class="sd">            frame_interval: Interval between frames to analyze for videos.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DeepfakeDetection for images or List[DeepfakeDetection] for videos.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the media file format is not supported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine if input is image or video based on file extension</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">media_path</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+        <span class="n">image_extensions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;.jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="s2">&quot;.bmp&quot;</span><span class="p">,</span> <span class="s2">&quot;.tiff&quot;</span><span class="p">,</span> <span class="s2">&quot;.webp&quot;</span><span class="p">}</span>
+        <span class="n">video_extensions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;.avi&quot;</span><span class="p">,</span> <span class="s2">&quot;.mov&quot;</span><span class="p">,</span> <span class="s2">&quot;.mkv&quot;</span><span class="p">,</span> <span class="s2">&quot;.wmv&quot;</span><span class="p">,</span> <span class="s2">&quot;.flv&quot;</span><span class="p">,</span> <span class="s2">&quot;.webm&quot;</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">image_extensions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detect_image</span><span class="p">(</span>
+                <span class="n">media_path</span><span class="p">,</span> <span class="n">save_csv</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">,</span> <span class="n">save_annotated</span><span class="p">,</span> <span class="n">output_folder</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">video_extensions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detect_video</span><span class="p">(</span>
+                <span class="n">media_path</span><span class="p">,</span>
+                <span class="n">save_csv</span><span class="p">,</span>
+                <span class="n">csv_path</span><span class="p">,</span>
+                <span class="n">save_annotated</span><span class="p">,</span>
+                <span class="n">output_folder</span><span class="p">,</span>
+                <span class="n">frame_interval</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported file format: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_detections_to_csv</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">detections</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">]],</span>
+        <span class="n">media_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves deepfake detection results to a CSV file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            detections: Single detection or list of detections to save.</span>
+<span class="sd">            media_path: Path to the source media file.</span>
+<span class="sd">            csv_path: Path where to save the CSV file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Extract just the filename from the full path</span>
+        <span class="n">media_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">media_path</span><span class="p">)</span>
+
+        <span class="c1"># Ensure detections is a list</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">detections</span><span class="p">,</span> <span class="n">DeepfakeDetection</span><span class="p">):</span>
+            <span class="n">detections</span> <span class="o">=</span> <span class="p">[</span><span class="n">detections</span><span class="p">]</span>
+
+        <span class="c1"># Check if CSV file exists to determine if we need to write headers</span>
+        <span class="n">file_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span>
+
+        <span class="c1"># Create directory if it doesn&#39;t exist</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;.&quot;</span><span class="p">,</span>
+            <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Open CSV file in append mode</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">fieldnames</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;media_name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;frame_number&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_deepfake&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;confidence&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;model_name&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">fieldnames</span><span class="p">)</span>
+
+            <span class="c1"># Write header if file is new</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">file_exists</span><span class="p">:</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
+
+            <span class="c1"># Write detection results</span>
+            <span class="k">for</span> <span class="n">detection</span> <span class="ow">in</span> <span class="n">detections</span><span class="p">:</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;media_name&quot;</span><span class="p">:</span> <span class="n">media_name</span><span class="p">,</span>
+                        <span class="s2">&quot;frame_number&quot;</span><span class="p">:</span> <span class="n">detection</span><span class="o">.</span><span class="n">frame_number</span><span class="p">,</span>
+                        <span class="s2">&quot;is_deepfake&quot;</span><span class="p">:</span> <span class="n">detection</span><span class="o">.</span><span class="n">is_deepfake</span><span class="p">,</span>
+                        <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">detection</span><span class="o">.</span><span class="n">confidence</span><span class="p">,</span>
+                        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">detection</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_annotate_image</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">detection</span><span class="p">:</span> <span class="n">DeepfakeDetection</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Annotates image with deepfake detection results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image: Input image as numpy array.</span>
+<span class="sd">            detection: Deepfake detection result.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: Copy of input image with detection results annotated.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">image_copy</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># Choose color based on detection result</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span> <span class="k">if</span> <span class="n">detection</span><span class="o">.</span><span class="n">is_deepfake</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># Red for deepfake, green for real</span>
+
+        <span class="c1"># Add detection result text</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;DEEPFAKE&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">detection</span><span class="o">.</span><span class="n">is_deepfake</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;REAL&#39;</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">detection</span><span class="o">.</span><span class="n">confidence</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Add background rectangle for text</span>
+        <span class="n">text_size</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getTextSize</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span>
+            <span class="n">image_copy</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="mi">20</span> <span class="o">+</span> <span class="n">text_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">40</span> <span class="o">+</span> <span class="n">text_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">color</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Add text</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span>
+            <span class="n">image_copy</span><span class="p">,</span>
+            <span class="n">label</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">35</span> <span class="o">+</span> <span class="n">text_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">cv2</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span>
+            <span class="mf">1.0</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span>
+            <span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">image_copy</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_annotated_image</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">detection</span><span class="p">:</span> <span class="n">DeepfakeDetection</span><span class="p">,</span>
+        <span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves annotated image with deepfake detection results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image: Original image.</span>
+<span class="sd">            detection: Deepfake detection result.</span>
+<span class="sd">            image_path: Path to the original image.</span>
+<span class="sd">            output_folder: Folder where to save the annotated image.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Path to the saved annotated image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create output directory if it doesn&#39;t exist</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Annotate image</span>
+        <span class="n">annotated_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotate_image</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">detection</span><span class="p">)</span>
+
+        <span class="c1"># Create output filename</span>
+        <span class="n">image_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">image_name</span><span class="p">)</span>
+        <span class="n">output_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_deepfake_detected</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">)</span>
+
+        <span class="c1"># Save annotated image</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">annotated_image</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">output_path</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_annotated_video</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">detections</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">],</span>
+        <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves annotated video with deepfake detection results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            video_path: Path to the original video.</span>
+<span class="sd">            detections: List of deepfake detection results.</span>
+<span class="sd">            output_folder: Folder where to save the annotated video.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Path to the saved annotated video.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create output directory if it doesn&#39;t exist</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Create output filename</span>
+        <span class="n">video_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">video_name</span><span class="p">)</span>
+        <span class="n">output_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_deepfake_detected</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">)</span>
+
+        <span class="c1"># Open input video</span>
+        <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+
+        <span class="c1"># Get video properties</span>
+        <span class="n">fps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FPS</span><span class="p">))</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_WIDTH</span><span class="p">))</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_HEIGHT</span><span class="p">))</span>
+
+        <span class="c1"># Create video writer</span>
+        <span class="n">fourcc</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoWriter_fourcc</span><span class="p">(</span><span class="o">*</span><span class="s2">&quot;mp4v&quot;</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoWriter</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">fourcc</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+
+        <span class="c1"># Create detection lookup for quick access</span>
+        <span class="n">detection_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">det</span><span class="o">.</span><span class="n">frame_number</span><span class="p">:</span> <span class="n">det</span> <span class="k">for</span> <span class="n">det</span> <span class="ow">in</span> <span class="n">detections</span><span class="p">}</span>
+
+        <span class="n">frame_number</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="c1"># Annotate frame if we have detection for it</span>
+            <span class="k">if</span> <span class="n">frame_number</span> <span class="ow">in</span> <span class="n">detection_dict</span><span class="p">:</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_annotate_image</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">detection_dict</span><span class="p">[</span><span class="n">frame_number</span><span class="p">])</span>
+
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+            <span class="n">frame_number</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Release everything</span>
+        <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">output_path</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_equally_spaced_frames</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extracts equally spaced frames from a video.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            video_path: Path to the video file.</span>
+<span class="sd">            num_frames: Number of frames to extract (default: 11).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of tuples containing (frame_number, frame_array) for extracted frames.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the video cannot be loaded or has insufficient frames.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_video</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+
+        <span class="c1"># Get total number of frames</span>
+        <span class="n">total_frames</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_COUNT</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">total_frames</span> <span class="o">&lt;</span> <span class="n">num_frames</span><span class="p">:</span>
+            <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Video has only </span><span class="si">{</span><span class="n">total_frames</span><span class="si">}</span><span class="s2"> frames, cannot extract </span><span class="si">{</span><span class="n">num_frames</span><span class="si">}</span><span class="s2"> frames&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Calculate frame indices to extract</span>
+        <span class="k">if</span> <span class="n">num_frames</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">frame_indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">total_frames</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>  <span class="c1"># Middle frame</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Equally space frames across the video</span>
+            <span class="n">frame_indices</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="p">(</span><span class="n">total_frames</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_frames</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">)</span>
+            <span class="p">]</span>
+
+        <span class="n">extracted_frames</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">frame_idx</span> <span class="ow">in</span> <span class="n">frame_indices</span><span class="p">:</span>
+            <span class="c1"># Set video position to the desired frame</span>
+            <span class="n">cap</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_POS_FRAMES</span><span class="p">,</span> <span class="n">frame_idx</span><span class="p">)</span>
+            <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">ret</span><span class="p">:</span>
+                <span class="n">extracted_frames</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">frame_idx</span><span class="p">,</span> <span class="n">frame</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># If we can&#39;t read the frame, skip it</span>
+                <span class="k">continue</span>
+
+        <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">extracted_frames</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not extract any frames from the video&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">extracted_frames</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Ishan Dutta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+mukh.deepfake\_detection.models.efficientnet package
+====================================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   mukh.deepfake_detection.models.efficientnet.architectures
+   mukh.deepfake_detection.models.efficientnet.blazeface
+
+Submodules
+----------
+
+mukh.deepfake\_detection.models.efficientnet.efficientnet\_detector module
+--------------------------------------------------------------------------
+
+.. automodule:: mukh.deepfake_detection.models.efficientnet.efficientnet_detector
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.deepfake_detection.models.efficientnet
+   :members:
+   :show-inheritance:
+   :undoc-members:

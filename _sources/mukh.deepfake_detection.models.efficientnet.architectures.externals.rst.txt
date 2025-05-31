@@ -1,0 +1,21 @@
+mukh.deepfake\_detection.models.efficientnet.architectures.externals package
+============================================================================
+
+Submodules
+----------
+
+mukh.deepfake\_detection.models.efficientnet.architectures.externals.xception module
+------------------------------------------------------------------------------------
+
+.. automodule:: mukh.deepfake_detection.models.efficientnet.architectures.externals.xception
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.deepfake_detection.models.efficientnet.architectures.externals
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -1,0 +1,133 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mukh.deepfake_detection.models.efficientnet.architectures.externals package &mdash; mukh 0.0.37 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            mukh
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">mukh</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">mukh</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">mukh.deepfake_detection.models.efficientnet.architectures.externals package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/mukh.deepfake_detection.models.efficientnet.architectures.externals.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mukh-deepfake-detection-models-efficientnet-architectures-externals-package">
+<h1>mukh.deepfake_detection.models.efficientnet.architectures.externals package<a class="headerlink" href="#mukh-deepfake-detection-models-efficientnet-architectures-externals-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-mukh.deepfake_detection.models.efficientnet.architectures.externals.xception">
+<span id="mukh-deepfake-detection-models-efficientnet-architectures-externals-xception-module"></span><h2>mukh.deepfake_detection.models.efficientnet.architectures.externals.xception module<a class="headerlink" href="#module-mukh.deepfake_detection.models.efficientnet.architectures.externals.xception" title="Link to this heading"></a></h2>
+<p>Ported to pytorch thanks to [tstandley](<a class="reference external" href="https://github.com/tstandley/Xception-PyTorch">https://github.com/tstandley/Xception-PyTorch</a>)</p>
+<p>&#64;author: tstandley
+Adapted by cadene</p>
+<p>Creates an Xception Model as defined in:</p>
+<p>Francois Chollet
+Xception: Deep Learning with Depthwise Separable Convolutions
+<a class="reference external" href="https://arxiv.org/pdf/1610.02357.pdf">https://arxiv.org/pdf/1610.02357.pdf</a></p>
+<p>This weights ported from the Keras implementation. Achieves the following performance on the validation set:</p>
+<p>Loss:0.9173 Prec&#64;1:78.892 Prec&#64;5:94.292</p>
+<p>REMEMBER to set your image size to 3x299x299 for both test and validation</p>
+<dl class="simple">
+<dt>normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],</dt><dd><p>std=[0.5, 0.5, 0.5])</p>
+</dd>
+</dl>
+<p>The resize parameter of the validation transform should be 333, and make sure to center crop at 299x299</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mukh.deepfake_detection.models.efficientnet.architectures.externals.xception.xception">
+<span class="sig-prename descclassname"><span class="pre">mukh.deepfake_detection.models.efficientnet.architectures.externals.xception.</span></span><span class="sig-name descname"><span class="pre">xception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'imagenet'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mukh/deepfake_detection/models/efficientnet/architectures/externals/xception.html#xception"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mukh.deepfake_detection.models.efficientnet.architectures.externals.xception.xception" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mukh.deepfake_detection.models.efficientnet.architectures.externals">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-mukh.deepfake_detection.models.efficientnet.architectures.externals" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Ishan Dutta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

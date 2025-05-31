@@ -1,0 +1,21 @@
+mukh.deepfake\_detection.models.resnext package
+===============================================
+
+Submodules
+----------
+
+mukh.deepfake\_detection.models.resnext.resnext\_detector module
+----------------------------------------------------------------
+
+.. automodule:: mukh.deepfake_detection.models.resnext.resnext_detector
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.deepfake_detection.models.resnext
+   :members:
+   :show-inheritance:
+   :undoc-members:

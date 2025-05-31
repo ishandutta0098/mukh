@@ -1,0 +1,21 @@
+mukh.deepfake\_detection.models.resnet\_inception package
+=========================================================
+
+Submodules
+----------
+
+mukh.deepfake\_detection.models.resnet\_inception.resnet\_inception\_detector module
+------------------------------------------------------------------------------------
+
+.. automodule:: mukh.deepfake_detection.models.resnet_inception.resnet_inception_detector
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.deepfake_detection.models.resnet_inception
+   :members:
+   :show-inheritance:
+   :undoc-members:

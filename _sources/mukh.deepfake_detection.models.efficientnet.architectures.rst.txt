@@ -1,0 +1,45 @@
+mukh.deepfake\_detection.models.efficientnet.architectures package
+==================================================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   mukh.deepfake_detection.models.efficientnet.architectures.externals
+
+Submodules
+----------
+
+mukh.deepfake\_detection.models.efficientnet.architectures.fornet module
+------------------------------------------------------------------------
+
+.. automodule:: mukh.deepfake_detection.models.efficientnet.architectures.fornet
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+mukh.deepfake\_detection.models.efficientnet.architectures.tripletnet module
+----------------------------------------------------------------------------
+
+.. automodule:: mukh.deepfake_detection.models.efficientnet.architectures.tripletnet
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+mukh.deepfake\_detection.models.efficientnet.architectures.weights module
+-------------------------------------------------------------------------
+
+.. automodule:: mukh.deepfake_detection.models.efficientnet.architectures.weights
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.deepfake_detection.models.efficientnet.architectures
+   :members:
+   :show-inheritance:
+   :undoc-members:

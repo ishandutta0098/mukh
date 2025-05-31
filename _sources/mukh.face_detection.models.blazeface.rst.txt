@@ -20,6 +20,22 @@ mukh.face\_detection.models.blazeface.blazeface\_torch module
    :show-inheritance:
    :undoc-members:
 
+mukh.face\_detection.models.blazeface.face\_extract module
+----------------------------------------------------------
+
+.. automodule:: mukh.face_detection.models.blazeface.face_extract
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+mukh.face\_detection.models.blazeface.read\_video module
+--------------------------------------------------------
+
+.. automodule:: mukh.face_detection.models.blazeface.read_video
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 Module contents
 ---------------
 

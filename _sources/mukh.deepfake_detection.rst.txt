@@ -1,0 +1,29 @@
+mukh.deepfake\_detection package
+================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   mukh.deepfake_detection.models
+
+Submodules
+----------
+
+mukh.deepfake\_detection.deepfake\_detector module
+--------------------------------------------------
+
+.. automodule:: mukh.deepfake_detection.deepfake_detector
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.deepfake_detection
+   :members:
+   :show-inheritance:
+   :undoc-members:

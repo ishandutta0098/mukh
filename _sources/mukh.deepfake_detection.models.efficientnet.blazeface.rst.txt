@@ -1,0 +1,37 @@
+mukh.deepfake\_detection.models.efficientnet.blazeface package
+==============================================================
+
+Submodules
+----------
+
+mukh.deepfake\_detection.models.efficientnet.blazeface.blazeface module
+-----------------------------------------------------------------------
+
+.. automodule:: mukh.deepfake_detection.models.efficientnet.blazeface.blazeface
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+mukh.deepfake\_detection.models.efficientnet.blazeface.face\_extract module
+---------------------------------------------------------------------------
+
+.. automodule:: mukh.deepfake_detection.models.efficientnet.blazeface.face_extract
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+mukh.deepfake\_detection.models.efficientnet.blazeface.read\_video module
+-------------------------------------------------------------------------
+
+.. automodule:: mukh.deepfake_detection.models.efficientnet.blazeface.read_video
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.deepfake_detection.models.efficientnet.blazeface
+   :members:
+   :show-inheritance:
+   :undoc-members:

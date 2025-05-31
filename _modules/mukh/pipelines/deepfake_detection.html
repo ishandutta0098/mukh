@@ -1,0 +1,883 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mukh.pipelines.deepfake_detection &mdash; mukh 0.0.37 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mukh
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">mukh</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mukh</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mukh.pipelines.deepfake_detection</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mukh.pipelines.deepfake_detection</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Deepfake detection pipeline for running multiple models and combining results using weighted aggregation.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageDraw</span><span class="p">,</span> <span class="n">ImageFont</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeepfakeDetection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..deepfake_detection</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeepfakeDetector</span>
+
+
+<div class="viewcode-block" id="DeepfakeDetectionPipeline">
+<a class="viewcode-back" href="../../../mukh.pipelines.html#mukh.pipelines.deepfake_detection.DeepfakeDetectionPipeline">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeepfakeDetectionPipeline</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pipeline for running multiple deepfake detection models and combining results using weighted aggregation.</span>
+
+<span class="sd">    This class allows you to run multiple deepfake detection models on the same</span>
+<span class="sd">    input and combine their predictions using weighted averaging.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        models: Dictionary mapping model names to DeepfakeDetector instances</span>
+<span class="sd">        model_weights: Dictionary mapping model names to their weights for weighted averaging</span>
+<span class="sd">        confidence_threshold: Final confidence threshold for pipeline decisions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model_configs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span>
+        <span class="n">model_weights</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">confidence_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the deepfake detection pipeline.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model_configs: List of dictionaries containing model configuration.</span>
+<span class="sd">                Each dict should have &#39;name&#39; and optionally &#39;model_path&#39;, &#39;device&#39;, etc.</span>
+<span class="sd">                Example: [</span>
+<span class="sd">                    {&#39;name&#39;: &#39;resnet_inception&#39;, &#39;confidence_threshold&#39;: 0.4},</span>
+<span class="sd">                    {&#39;name&#39;: &#39;resnext&#39;, &#39;model_variant&#39;: &#39;resnext&#39;},</span>
+<span class="sd">                    {&#39;name&#39;: &#39;efficientnet&#39;, &#39;net_model&#39;: &#39;EfficientNetB4&#39;}</span>
+<span class="sd">                ]</span>
+<span class="sd">            model_weights: Dictionary mapping model names to weights for weighted averaging</span>
+<span class="sd">            confidence_threshold: Final confidence threshold for pipeline decisions</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If invalid model configuration provided</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span> <span class="o">=</span> <span class="n">model_weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span> <span class="o">=</span> <span class="n">confidence_threshold</span>
+
+        <span class="c1"># Initialize models</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_models</span><span class="p">(</span><span class="n">model_configs</span><span class="p">)</span>
+
+        <span class="c1"># Validate and normalize model weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_model_weights</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_initialize_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_configs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes deepfake detection models from configurations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model_configs: List of model configuration dictionaries</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If model configuration is invalid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">model_configs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Each model config must have a &#39;name&#39; field&quot;</span><span class="p">)</span>
+
+            <span class="n">model_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+
+            <span class="c1"># Extract model-specific parameters</span>
+            <span class="n">model_params</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">del</span> <span class="n">model_params</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+
+            <span class="c1"># Create detector instance</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">detector</span> <span class="o">=</span> <span class="n">DeepfakeDetector</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="o">**</span><span class="n">model_params</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">detector</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initialized model: </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to initialize model &#39;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_model_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validates that model weights are provided for all models and normalizes them.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If weights are missing or invalid</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">weight_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">model_names</span> <span class="o">!=</span> <span class="n">weight_names</span><span class="p">:</span>
+            <span class="n">missing_weights</span> <span class="o">=</span> <span class="n">model_names</span> <span class="o">-</span> <span class="n">weight_names</span>
+            <span class="n">extra_weights</span> <span class="o">=</span> <span class="n">weight_names</span> <span class="o">-</span> <span class="n">model_names</span>
+
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">missing_weights</span><span class="p">:</span>
+                <span class="n">error_msg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing weights for models: </span><span class="si">{</span><span class="n">missing_weights</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">extra_weights</span><span class="p">:</span>
+                <span class="n">error_msg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extra weights for unknown models: </span><span class="si">{</span><span class="n">extra_weights</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">error_msg</span><span class="p">))</span>
+
+        <span class="c1"># Validate weight values</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">weight</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Weight for model &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; must be a non-negative number&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Normalize weights to sum to 1</span>
+        <span class="n">total_weight</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">total_weight</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sum of model weights cannot be zero&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">weight</span> <span class="o">/</span> <span class="n">total_weight</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_aggregate_predictions</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">predictions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">],</span> <span class="n">frame_number</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DeepfakeDetection</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Aggregates predictions from multiple models using weighted averaging.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            predictions: List of predictions from different models</span>
+<span class="sd">            frame_number: Frame number for the aggregated result</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DeepfakeDetection: Weighted averaged prediction result</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">predictions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot aggregate empty predictions list&quot;</span><span class="p">)</span>
+
+        <span class="n">weighted_deepfake_prob</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">total_weight</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">model_names</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">:</span>
+            <span class="c1"># Extract base model name (remove any suffixes)</span>
+            <span class="n">base_model_name</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">model_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+            <span class="c1"># Map model names to the keys used in model_weights</span>
+            <span class="k">if</span> <span class="n">base_model_name</span> <span class="o">==</span> <span class="s2">&quot;resnetinception&quot;</span> <span class="ow">or</span> <span class="n">base_model_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+                <span class="s2">&quot;resnet&quot;</span>
+            <span class="p">):</span>
+                <span class="n">base_model_name</span> <span class="o">=</span> <span class="s2">&quot;resnet_inception&quot;</span>
+            <span class="k">elif</span> <span class="n">base_model_name</span> <span class="o">==</span> <span class="s2">&quot;resnext&quot;</span><span class="p">:</span>
+                <span class="n">base_model_name</span> <span class="o">=</span> <span class="s2">&quot;resnext&quot;</span>
+            <span class="k">elif</span> <span class="n">base_model_name</span> <span class="o">==</span> <span class="s2">&quot;efficientnet&quot;</span><span class="p">:</span>
+                <span class="n">base_model_name</span> <span class="o">=</span> <span class="s2">&quot;efficientnet&quot;</span>
+
+            <span class="n">weight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">base_model_name</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+            <span class="c1"># Convert confidence to deepfake probability</span>
+            <span class="c1"># Each model returns confidence differently, so we need to normalize</span>
+            <span class="k">if</span> <span class="n">pred</span><span class="o">.</span><span class="n">is_deepfake</span><span class="p">:</span>
+                <span class="n">deepfake_prob</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">confidence</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">deepfake_prob</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">pred</span><span class="o">.</span><span class="n">confidence</span>
+
+            <span class="n">weighted_deepfake_prob</span> <span class="o">+=</span> <span class="n">deepfake_prob</span> <span class="o">*</span> <span class="n">weight</span>
+            <span class="n">total_weight</span> <span class="o">+=</span> <span class="n">weight</span>
+            <span class="n">model_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pred</span><span class="o">.</span><span class="n">model_name</span><span class="p">)</span>
+
+        <span class="c1"># Normalize by total weight (should be 1.0 if weights are normalized)</span>
+        <span class="k">if</span> <span class="n">total_weight</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">weighted_deepfake_prob</span> <span class="o">/=</span> <span class="n">total_weight</span>
+
+        <span class="n">is_deepfake</span> <span class="o">=</span> <span class="n">weighted_deepfake_prob</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span>
+        <span class="n">final_confidence</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">weighted_deepfake_prob</span> <span class="k">if</span> <span class="n">is_deepfake</span> <span class="k">else</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">weighted_deepfake_prob</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">combined_model_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;WeightedPipeline(</span><span class="si">{</span><span class="s1">&#39;+&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_names</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+        <span class="k">return</span> <span class="n">DeepfakeDetection</span><span class="p">(</span>
+            <span class="n">frame_number</span><span class="o">=</span><span class="n">frame_number</span><span class="p">,</span>
+            <span class="n">is_deepfake</span><span class="o">=</span><span class="n">is_deepfake</span><span class="p">,</span>
+            <span class="n">confidence</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">final_confidence</span><span class="p">),</span>
+            <span class="n">model_name</span><span class="o">=</span><span class="n">combined_model_name</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="DeepfakeDetectionPipeline.detect_image">
+<a class="viewcode-back" href="../../../mukh.pipelines.html#mukh.pipelines.deepfake_detection.DeepfakeDetectionPipeline.detect_image">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect_image</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">save_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output/pipeline_deepfake_detections.csv&quot;</span><span class="p">,</span>
+        <span class="n">save_annotated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+        <span class="n">save_individual_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DeepfakeDetection</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detects deepfake in the given image using all models in the pipeline.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_path: Path to the input image</span>
+<span class="sd">            save_csv: Whether to save detection results to CSV file</span>
+<span class="sd">            csv_path: Path where to save the CSV file</span>
+<span class="sd">            save_annotated: Whether to save annotated image with results</span>
+<span class="sd">            output_folder: Folder path where to save annotated images</span>
+<span class="sd">            save_individual_results: Whether to save individual model results</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DeepfakeDetection: Aggregated detection result</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Run detection with each model</span>
+        <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">detector</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running detection with model: </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">prediction</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">detect_image</span><span class="p">(</span>
+                    <span class="n">image_path</span><span class="o">=</span><span class="n">image_path</span><span class="p">,</span>
+                    <span class="n">save_csv</span><span class="o">=</span><span class="n">save_individual_results</span> <span class="ow">and</span> <span class="n">save_csv</span><span class="p">,</span>
+                    <span class="n">csv_path</span><span class="o">=</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">csv_path</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="k">if</span> <span class="n">save_individual_results</span>
+                        <span class="k">else</span> <span class="n">csv_path</span>
+                    <span class="p">),</span>
+                    <span class="n">save_annotated</span><span class="o">=</span><span class="n">save_individual_results</span> <span class="ow">and</span> <span class="n">save_annotated</span><span class="p">,</span>
+                    <span class="n">output_folder</span><span class="o">=</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">save_individual_results</span>
+                        <span class="k">else</span> <span class="n">output_folder</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+                <span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Prediction completed for </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Model </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2"> failed on image </span><span class="si">{</span><span class="n">image_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">predictions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;All models failed to process the image&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Aggregate predictions using weighted averaging</span>
+        <span class="n">aggregated_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aggregate_predictions</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">frame_number</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Print summary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print_image_summary</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">aggregated_result</span><span class="p">)</span>
+
+        <span class="c1"># Save aggregated results</span>
+        <span class="k">if</span> <span class="n">save_csv</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_aggregated_results</span><span class="p">([</span><span class="n">aggregated_result</span><span class="p">],</span> <span class="n">image_path</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_annotated</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_annotated_result</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">aggregated_result</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">aggregated_result</span></div>
+
+
+<div class="viewcode-block" id="DeepfakeDetectionPipeline.detect_video">
+<a class="viewcode-back" href="../../../mukh.pipelines.html#mukh.pipelines.deepfake_detection.DeepfakeDetectionPipeline.detect_video">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect_video</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">save_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output/pipeline_deepfake_detections.csv&quot;</span><span class="p">,</span>
+        <span class="n">save_annotated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+        <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span>
+        <span class="n">save_individual_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detects deepfake in the given video using all models in the pipeline.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            video_path: Path to the input video</span>
+<span class="sd">            save_csv: Whether to save detection results to CSV file</span>
+<span class="sd">            csv_path: Path where to save the CSV file</span>
+<span class="sd">            save_annotated: Whether to save annotated video with results</span>
+<span class="sd">            output_folder: Folder path where to save annotated videos</span>
+<span class="sd">            num_frames: Number of equally spaced frames to analyze</span>
+<span class="sd">            save_individual_results: Whether to save individual model results</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[DeepfakeDetection]: List of aggregated detection results for each frame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_model_predictions</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Run detection with each model</span>
+        <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">detector</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running detection with model: </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">predictions</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">detect_video</span><span class="p">(</span>
+                    <span class="n">video_path</span><span class="o">=</span><span class="n">video_path</span><span class="p">,</span>
+                    <span class="n">save_csv</span><span class="o">=</span><span class="n">save_individual_results</span> <span class="ow">and</span> <span class="n">save_csv</span><span class="p">,</span>
+                    <span class="n">csv_path</span><span class="o">=</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">csv_path</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="k">if</span> <span class="n">save_individual_results</span>
+                        <span class="k">else</span> <span class="n">csv_path</span>
+                    <span class="p">),</span>
+                    <span class="n">save_annotated</span><span class="o">=</span><span class="n">save_individual_results</span> <span class="ow">and</span> <span class="n">save_annotated</span><span class="p">,</span>
+                    <span class="n">output_folder</span><span class="o">=</span><span class="p">(</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">save_individual_results</span>
+                        <span class="k">else</span> <span class="n">output_folder</span>
+                    <span class="p">),</span>
+                    <span class="n">num_frames</span><span class="o">=</span><span class="n">num_frames</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">all_model_predictions</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">pred</span><span class="o">.</span><span class="n">frame_number</span><span class="p">:</span> <span class="n">pred</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predictions</span>
+                <span class="p">}</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Predictions completed for </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Model </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2"> failed on video </span><span class="si">{</span><span class="n">video_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_model_predictions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;All models failed to process the video&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get all frame numbers that were processed</span>
+        <span class="n">all_frame_numbers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">predictions</span> <span class="ow">in</span> <span class="n">all_model_predictions</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">all_frame_numbers</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">predictions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># Aggregate predictions for each frame using weighted averaging</span>
+        <span class="n">aggregated_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">frame_number</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">all_frame_numbers</span><span class="p">):</span>
+            <span class="n">frame_predictions</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">predictions</span> <span class="ow">in</span> <span class="n">all_model_predictions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">frame_number</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">:</span>
+                    <span class="n">frame_predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="n">frame_number</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">frame_predictions</span><span class="p">:</span>
+                <span class="n">aggregated_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aggregate_predictions</span><span class="p">(</span>
+                    <span class="n">frame_predictions</span><span class="p">,</span> <span class="n">frame_number</span>
+                <span class="p">)</span>
+                <span class="n">aggregated_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aggregated_result</span><span class="p">)</span>
+
+        <span class="c1"># Print summary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print_video_summary</span><span class="p">(</span><span class="n">video_path</span><span class="p">,</span> <span class="n">all_model_predictions</span><span class="p">,</span> <span class="n">aggregated_results</span><span class="p">)</span>
+
+        <span class="c1"># Save aggregated results</span>
+        <span class="k">if</span> <span class="n">save_csv</span> <span class="ow">and</span> <span class="n">aggregated_results</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_aggregated_results</span><span class="p">(</span><span class="n">aggregated_results</span><span class="p">,</span> <span class="n">video_path</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_annotated</span> <span class="ow">and</span> <span class="n">aggregated_results</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_annotated_video_result</span><span class="p">(</span>
+                <span class="n">video_path</span><span class="p">,</span> <span class="n">aggregated_results</span><span class="p">,</span> <span class="n">output_folder</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">aggregated_results</span></div>
+
+
+<div class="viewcode-block" id="DeepfakeDetectionPipeline.detect">
+<a class="viewcode-back" href="../../../mukh.pipelines.html#mukh.pipelines.deepfake_detection.DeepfakeDetectionPipeline.detect">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">media_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">save_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output/pipeline_deepfake_detections.csv&quot;</span><span class="p">,</span>
+        <span class="n">save_annotated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+        <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span>
+        <span class="n">save_individual_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detects deepfake in the given media file using all models in the pipeline.</span>
+
+<span class="sd">        Automatically determines whether the input is an image or video</span>
+<span class="sd">        based on file extension and calls the appropriate detection method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            media_path: Path to the input media file (image or video)</span>
+<span class="sd">            save_csv: Whether to save detection results to CSV file</span>
+<span class="sd">            csv_path: Path where to save the CSV file</span>
+<span class="sd">            save_annotated: Whether to save annotated media with results</span>
+<span class="sd">            output_folder: Folder path where to save annotated media</span>
+<span class="sd">            num_frames: Number of equally spaced frames to analyze for videos</span>
+<span class="sd">            save_individual_results: Whether to save individual model results</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DeepfakeDetection for images, List[DeepfakeDetection] for videos</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the file format is not supported</span>
+<span class="sd">            FileNotFoundError: If the media file doesn&#39;t exist</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">media_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Media file not found: </span><span class="si">{</span><span class="n">media_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get file extension</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">media_path</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+        <span class="c1"># Image extensions</span>
+        <span class="n">image_extensions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;.jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="s2">&quot;.bmp&quot;</span><span class="p">,</span> <span class="s2">&quot;.tiff&quot;</span><span class="p">,</span> <span class="s2">&quot;.tif&quot;</span><span class="p">}</span>
+        <span class="c1"># Video extensions</span>
+        <span class="n">video_extensions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;.avi&quot;</span><span class="p">,</span> <span class="s2">&quot;.mov&quot;</span><span class="p">,</span> <span class="s2">&quot;.mkv&quot;</span><span class="p">,</span> <span class="s2">&quot;.wmv&quot;</span><span class="p">,</span> <span class="s2">&quot;.flv&quot;</span><span class="p">,</span> <span class="s2">&quot;.webm&quot;</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">image_extensions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detect_image</span><span class="p">(</span>
+                <span class="n">image_path</span><span class="o">=</span><span class="n">media_path</span><span class="p">,</span>
+                <span class="n">save_csv</span><span class="o">=</span><span class="n">save_csv</span><span class="p">,</span>
+                <span class="n">csv_path</span><span class="o">=</span><span class="n">csv_path</span><span class="p">,</span>
+                <span class="n">save_annotated</span><span class="o">=</span><span class="n">save_annotated</span><span class="p">,</span>
+                <span class="n">output_folder</span><span class="o">=</span><span class="n">output_folder</span><span class="p">,</span>
+                <span class="n">save_individual_results</span><span class="o">=</span><span class="n">save_individual_results</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">video_extensions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detect_video</span><span class="p">(</span>
+                <span class="n">video_path</span><span class="o">=</span><span class="n">media_path</span><span class="p">,</span>
+                <span class="n">save_csv</span><span class="o">=</span><span class="n">save_csv</span><span class="p">,</span>
+                <span class="n">csv_path</span><span class="o">=</span><span class="n">csv_path</span><span class="p">,</span>
+                <span class="n">save_annotated</span><span class="o">=</span><span class="n">save_annotated</span><span class="p">,</span>
+                <span class="n">output_folder</span><span class="o">=</span><span class="n">output_folder</span><span class="p">,</span>
+                <span class="n">num_frames</span><span class="o">=</span><span class="n">num_frames</span><span class="p">,</span>
+                <span class="n">save_individual_results</span><span class="o">=</span><span class="n">save_individual_results</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported file format: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_aggregated_results</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">],</span>
+        <span class="n">media_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output/pipeline_deepfake_detections.csv&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves aggregated pipeline results to CSV file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            results: List of aggregated detection results</span>
+<span class="sd">            media_path: Path to the source media file</span>
+<span class="sd">            csv_path: Path where to save the CSV file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create directory only if csv_path contains a directory component</span>
+        <span class="n">csv_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">csv_dir</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">csv_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Check if file exists to determine if we need headers</span>
+        <span class="n">file_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="n">fieldnames</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;media_path&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;frame_number&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;is_deepfake&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;confidence&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;model_name&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">fieldnames</span><span class="p">)</span>
+
+            <span class="c1"># Write header if file is new</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">file_exists</span><span class="p">:</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
+
+            <span class="c1"># Write detection results</span>
+            <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;media_path&quot;</span><span class="p">:</span> <span class="n">media_path</span><span class="p">,</span>
+                        <span class="s2">&quot;frame_number&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">frame_number</span><span class="p">,</span>
+                        <span class="s2">&quot;is_deepfake&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">is_deepfake</span><span class="p">,</span>
+                        <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">confidence</span><span class="p">,</span>
+                        <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_annotated_result</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">DeepfakeDetection</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves annotated image with pipeline result.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_path: Path to the original image</span>
+<span class="sd">            result: Aggregated detection result</span>
+<span class="sd">            output_folder: Directory to save annotated image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create output directory</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Load image</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">image</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Could not load image </span><span class="si">{</span><span class="n">image_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Convert BGR to RGB for PIL</span>
+        <span class="n">image_rgb</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+        <span class="n">pil_image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">image_rgb</span><span class="p">)</span>
+
+        <span class="c1"># Create drawing context</span>
+        <span class="n">draw</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">pil_image</span><span class="p">)</span>
+
+        <span class="c1"># Try to load a font, fall back to default if not available</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">font</span> <span class="o">=</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">truetype</span><span class="p">(</span><span class="s2">&quot;arial.ttf&quot;</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">font</span> <span class="o">=</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">truetype</span><span class="p">(</span><span class="s2">&quot;/System/Library/Fonts/Arial.ttf&quot;</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">font</span> <span class="o">=</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">load_default</span><span class="p">()</span>
+
+        <span class="c1"># Prepare text</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;DEEPFAKE&quot;</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_deepfake</span> <span class="k">else</span> <span class="s2">&quot;REAL&quot;</span>
+        <span class="n">confidence_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">confidence</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">confidence_text</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+        <span class="c1"># Choose color based on result</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_deepfake</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># Red for deepfake, green for real</span>
+
+        <span class="c1"># Get text size</span>
+        <span class="n">bbox</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">textbbox</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">text</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">)</span>
+        <span class="n">text_width</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">text_height</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Position text at top-left with some padding</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span>
+
+        <span class="c1"># Draw background rectangle for text</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">x</span> <span class="o">-</span> <span class="mi">5</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">5</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">text_width</span> <span class="o">+</span> <span class="mi">5</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">text_height</span> <span class="o">+</span> <span class="mi">5</span><span class="p">],</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Draw text</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">text</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">)</span>
+
+        <span class="c1"># Save annotated image</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_pipeline_annotated</span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Convert back to BGR for OpenCV saving</span>
+        <span class="n">annotated_image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pil_image</span><span class="p">),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2BGR</span><span class="p">)</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">annotated_image</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved annotated image: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_save_annotated_video_result</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">],</span> <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Saves annotated video with pipeline results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            video_path: Path to the original video</span>
+<span class="sd">            results: List of aggregated detection results</span>
+<span class="sd">            output_folder: Directory to save annotated video</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create output directory</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Open input video</span>
+        <span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cap</span><span class="o">.</span><span class="n">isOpened</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: Could not open video </span><span class="si">{</span><span class="n">video_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Get video properties</span>
+        <span class="n">fps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FPS</span><span class="p">))</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_WIDTH</span><span class="p">))</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_HEIGHT</span><span class="p">))</span>
+
+        <span class="c1"># Prepare output video</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_pipeline_annotated.mp4&quot;</span><span class="p">)</span>
+
+        <span class="n">fourcc</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoWriter_fourcc</span><span class="p">(</span><span class="o">*</span><span class="s2">&quot;mp4v&quot;</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoWriter</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">fourcc</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+
+        <span class="c1"># Create a mapping of frame numbers to results</span>
+        <span class="n">results_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">result</span><span class="o">.</span><span class="n">frame_number</span><span class="p">:</span> <span class="n">result</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">}</span>
+
+        <span class="n">frame_idx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">ret</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="c1"># Check if we have a detection result for this frame</span>
+            <span class="k">if</span> <span class="n">frame_idx</span> <span class="ow">in</span> <span class="n">results_dict</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">results_dict</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">]</span>
+
+                <span class="c1"># Prepare text</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;DEEPFAKE&quot;</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_deepfake</span> <span class="k">else</span> <span class="s2">&quot;REAL&quot;</span>
+                <span class="n">confidence_text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">confidence</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">confidence_text</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+                <span class="c1"># Choose color based on result</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_deepfake</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="p">)</span>  <span class="c1"># Red for deepfake, green for real</span>
+
+                <span class="c1"># Add text to frame</span>
+                <span class="n">font</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span>
+                <span class="n">font_scale</span> <span class="o">=</span> <span class="mf">1.0</span>
+                <span class="n">thickness</span> <span class="o">=</span> <span class="mi">2</span>
+
+                <span class="c1"># Get text size</span>
+                <span class="p">(</span><span class="n">text_width</span><span class="p">,</span> <span class="n">text_height</span><span class="p">),</span> <span class="n">baseline</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getTextSize</span><span class="p">(</span>
+                    <span class="n">text</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">font_scale</span><span class="p">,</span> <span class="n">thickness</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Position text at top-left with some padding</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span>
+
+                <span class="c1"># Draw background rectangle for text</span>
+                <span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span>
+                    <span class="n">frame</span><span class="p">,</span>
+                    <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">5</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="n">text_height</span> <span class="o">-</span> <span class="mi">5</span><span class="p">),</span>
+                    <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">text_width</span> <span class="o">+</span> <span class="mi">5</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">baseline</span> <span class="o">+</span> <span class="mi">5</span><span class="p">),</span>
+                    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Draw text</span>
+                <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">font</span><span class="p">,</span> <span class="n">font_scale</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
+
+            <span class="c1"># Write frame to output video</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+            <span class="n">frame_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Release resources</span>
+        <span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved annotated video: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DeepfakeDetectionPipeline.get_pipeline_info">
+<a class="viewcode-back" href="../../../mukh.pipelines.html#mukh.pipelines.deepfake_detection.DeepfakeDetectionPipeline.get_pipeline_info">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pipeline_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns information about the pipeline configuration.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary containing pipeline information including models and configuration details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model_info</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">detector</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">model_info</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">detector</span><span class="o">.</span><span class="n">get_model_info</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;models&quot;</span><span class="p">:</span> <span class="n">model_info</span><span class="p">,</span>
+            <span class="s2">&quot;aggregation_strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;weighted_average&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;model_weights&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="p">,</span>
+            <span class="s2">&quot;confidence_threshold&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span><span class="p">,</span>
+            <span class="s2">&quot;num_models&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">),</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="DeepfakeDetectionPipeline.set_confidence_threshold">
+<a class="viewcode-back" href="../../../mukh.pipelines.html#mukh.pipelines.deepfake_detection.DeepfakeDetectionPipeline.set_confidence_threshold">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_confidence_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the confidence threshold for pipeline decisions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            threshold: New confidence threshold (0.0 to 1.0)</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If threshold is not between 0.0 and 1.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">threshold</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Confidence threshold must be between 0.0 and 1.0&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span> <span class="o">=</span> <span class="n">threshold</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_print_image_summary</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">],</span>
+        <span class="n">aggregated_result</span><span class="p">:</span> <span class="n">DeepfakeDetection</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prints a summary of image detection results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_path: Path to the processed image</span>
+<span class="sd">            predictions: List of individual model predictions</span>
+<span class="sd">            aggregated_result: Final aggregated result</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PIPELINE SUMMARY - IMAGE: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Individual Model Results:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;DEEPFAKE&quot;</span> <span class="k">if</span> <span class="n">pred</span><span class="o">.</span><span class="n">is_deepfake</span> <span class="k">else</span> <span class="s2">&quot;REAL&quot;</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pred</span><span class="o">.</span><span class="n">model_name</span><span class="si">:</span><span class="s2">20</span><span class="si">}</span><span class="s2"> | Confidence: </span><span class="si">{</span><span class="n">pred</span><span class="o">.</span><span class="n">confidence</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | Verdict: </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Weighted Aggregation:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">:</span><span class="s2">20</span><span class="si">}</span><span class="s2"> | Weight: </span><span class="si">{</span><span class="n">weight</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">FINAL VERDICT:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="n">final_status</span> <span class="o">=</span> <span class="s2">&quot;DEEPFAKE&quot;</span> <span class="k">if</span> <span class="n">aggregated_result</span><span class="o">.</span><span class="n">is_deepfake</span> <span class="k">else</span> <span class="s2">&quot;REAL&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Frame Number: </span><span class="si">{</span><span class="n">aggregated_result</span><span class="o">.</span><span class="n">frame_number</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Final Confidence: </span><span class="si">{</span><span class="n">aggregated_result</span><span class="o">.</span><span class="n">confidence</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Final Verdict: </span><span class="si">{</span><span class="n">final_status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Threshold Used: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_print_video_summary</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">all_model_predictions</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="n">aggregated_results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prints a summary of video detection results.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            video_path: Path to the processed video</span>
+<span class="sd">            all_model_predictions: Dictionary of all model predictions by frame</span>
+<span class="sd">            aggregated_results: List of final aggregated results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PIPELINE SUMMARY - VIDEO: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Processed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">aggregated_results</span><span class="p">)</span><span class="si">}</span><span class="s2"> frames&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Models used: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">all_model_predictions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Model Weights:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">:</span><span class="s2">20</span><span class="si">}</span><span class="s2"> | Weight: </span><span class="si">{</span><span class="n">weight</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Frame-by-Frame Results:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Frame&#39;</span><span class="si">:</span><span class="s2">&lt;8</span><span class="si">}</span><span class="s2"> | &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Print model headers</span>
+        <span class="n">model_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_model_predictions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">model_names</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="p">[:</span><span class="mi">12</span><span class="p">]</span><span class="si">:</span><span class="s2">&lt;14</span><span class="si">}</span><span class="s2"> | &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Final Conf&#39;</span><span class="si">:</span><span class="s2">&lt;12</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="s1">&#39;Final Verdict&#39;</span><span class="si">:</span><span class="s2">&lt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+
+        <span class="c1"># Print results for each frame</span>
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">aggregated_results</span><span class="p">:</span>
+            <span class="n">frame_num</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">frame_number</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">frame_num</span><span class="si">:</span><span class="s2">&lt;8</span><span class="si">}</span><span class="s2"> | &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Print individual model confidences for this frame</span>
+            <span class="k">for</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">model_names</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">frame_num</span> <span class="ow">in</span> <span class="n">all_model_predictions</span><span class="p">[</span><span class="n">model_name</span><span class="p">]:</span>
+                    <span class="n">conf</span> <span class="o">=</span> <span class="n">all_model_predictions</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="n">frame_num</span><span class="p">]</span><span class="o">.</span><span class="n">confidence</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">conf</span><span class="si">:</span><span class="s2">&lt;14.4f</span><span class="si">}</span><span class="s2"> | &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;N/A&#39;</span><span class="si">:</span><span class="s2">&lt;14</span><span class="si">}</span><span class="s2"> | &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Print final result</span>
+            <span class="n">final_status</span> <span class="o">=</span> <span class="s2">&quot;DEEPFAKE&quot;</span> <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_deepfake</span> <span class="k">else</span> <span class="s2">&quot;REAL&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">confidence</span><span class="si">:</span><span class="s2">&lt;12.4f</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">final_status</span><span class="si">:</span><span class="s2">&lt;12</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Calculate overall statistics</span>
+        <span class="n">deepfake_frames</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">aggregated_results</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">is_deepfake</span><span class="p">)</span>
+        <span class="n">real_frames</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">aggregated_results</span><span class="p">)</span> <span class="o">-</span> <span class="n">deepfake_frames</span>
+        <span class="n">avg_confidence</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">confidence</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">aggregated_results</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">aggregated_results</span>
+        <span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Overall Statistics:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total Frames Analyzed: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">aggregated_results</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Frames Classified as DEEPFAKE: </span><span class="si">{</span><span class="n">deepfake_frames</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">deepfake_frames</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">aggregated_results</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)&quot;</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Frames Classified as REAL: </span><span class="si">{</span><span class="n">real_frames</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">real_frames</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">aggregated_results</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)&quot;</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average Confidence: </span><span class="si">{</span><span class="n">avg_confidence</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Threshold Used: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Overall video verdict based on majority of frames</span>
+        <span class="n">overall_verdict</span> <span class="o">=</span> <span class="s2">&quot;DEEPFAKE&quot;</span> <span class="k">if</span> <span class="n">deepfake_frames</span> <span class="o">&gt;</span> <span class="n">real_frames</span> <span class="k">else</span> <span class="s2">&quot;REAL&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">OVERALL VIDEO VERDICT: </span><span class="si">{</span><span class="n">overall_verdict</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Ishan Dutta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

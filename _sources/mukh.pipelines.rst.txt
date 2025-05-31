@@ -1,0 +1,21 @@
+mukh.pipelines package
+======================
+
+Submodules
+----------
+
+mukh.pipelines.deepfake\_detection module
+-----------------------------------------
+
+.. automodule:: mukh.pipelines.deepfake_detection
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.pipelines
+   :members:
+   :show-inheritance:
+   :undoc-members:

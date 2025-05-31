@@ -1,0 +1,347 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mukh.deepfake_detection.deepfake_detector &mdash; mukh 0.0.37 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=aa2ad26f"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            mukh
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">mukh</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">mukh</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mukh.deepfake_detection.deepfake_detector</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mukh.deepfake_detection.deepfake_detector</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Unified deepfake detection interface.</span>
+
+<span class="sd">This module provides a unified interface for deepfake detection across</span>
+<span class="sd">different model implementations. It follows the same pattern as the</span>
+<span class="sd">face detection module for consistency.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeepfakeDetection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models.efficientnet.efficientnet_detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">EfficientNetDetector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models.resnet_inception.resnet_inception_detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResNetInceptionDetector</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.models.resnext.resnext_detector</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResNeXtDetector</span>
+
+
+<div class="viewcode-block" id="DeepfakeDetector">
+<a class="viewcode-back" href="../../../mukh.deepfake_detection.html#mukh.deepfake_detection.deepfake_detector.DeepfakeDetector">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DeepfakeDetector</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unified deepfake detector interface.</span>
+
+<span class="sd">    Provides a consistent API for deepfake detection using different</span>
+<span class="sd">    underlying models. Currently supports ResNet Inception, ResNeXt, and EfficientNet models.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        model_name: Name of the detection model being used</span>
+<span class="sd">        detector: The underlying detection model instance</span>
+<span class="sd">        confidence_threshold: Minimum confidence for valid detections</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;resnet_inception&quot;</span><span class="p">,</span>
+        <span class="n">model_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">confidence_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the deepfake detector.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model_name: Name of the model to use (&#39;resnet_inception&#39;, &#39;resnext&#39;, &#39;efficientnet&#39;)</span>
+<span class="sd">            model_path: Optional custom path to model weights file</span>
+<span class="sd">            confidence_threshold: Minimum confidence threshold for detections</span>
+<span class="sd">            device: Device to run inference on (&#39;cpu&#39; or &#39;cuda&#39;). Auto-detected if None</span>
+<span class="sd">            **kwargs: Additional arguments passed to the specific detector</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If an unsupported model name is provided</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span> <span class="o">=</span> <span class="n">confidence_threshold</span>
+
+        <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;resnet_inception&quot;</span><span class="p">:</span>
+            <span class="c1"># Use default model path if not provided</span>
+            <span class="k">if</span> <span class="n">model_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">model_path</span> <span class="o">=</span> <span class="s2">&quot;/Users/ishandutta/Documents/code/mukh/mukh/deepfake_detection/models/resnet_inception/resnetinceptionv1_epoch_32.pth&quot;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">detector</span> <span class="o">=</span> <span class="n">ResNetInceptionDetector</span><span class="p">(</span>
+                <span class="n">model_path</span><span class="o">=</span><span class="n">model_path</span><span class="p">,</span>
+                <span class="n">confidence_threshold</span><span class="o">=</span><span class="n">confidence_threshold</span><span class="p">,</span>
+                <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;resnext&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detector</span> <span class="o">=</span> <span class="n">ResNeXtDetector</span><span class="p">(</span>
+                <span class="n">model_path</span><span class="o">=</span><span class="n">model_path</span><span class="p">,</span>
+                <span class="n">confidence_threshold</span><span class="o">=</span><span class="n">confidence_threshold</span><span class="p">,</span>
+                <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;efficientnet&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detector</span> <span class="o">=</span> <span class="n">EfficientNetDetector</span><span class="p">(</span>
+                <span class="n">model_path</span><span class="o">=</span><span class="n">model_path</span><span class="p">,</span>
+                <span class="n">confidence_threshold</span><span class="o">=</span><span class="n">confidence_threshold</span><span class="p">,</span>
+                <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported model: </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DeepfakeDetector.detect_image">
+<a class="viewcode-back" href="../../../mukh.deepfake_detection.html#mukh.deepfake_detection.deepfake_detector.DeepfakeDetector.detect_image">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect_image</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">save_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;deepfake_detections.csv&quot;</span><span class="p">,</span>
+        <span class="n">save_annotated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DeepfakeDetection</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detects deepfake in the given image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            image_path: Path to the input image</span>
+<span class="sd">            save_csv: Whether to save detection results to CSV file</span>
+<span class="sd">            csv_path: Path where to save the CSV file</span>
+<span class="sd">            save_annotated: Whether to save annotated image with results</span>
+<span class="sd">            output_folder: Folder path where to save annotated images</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DeepfakeDetection object containing detection results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">detect_image</span><span class="p">(</span>
+            <span class="n">image_path</span><span class="o">=</span><span class="n">image_path</span><span class="p">,</span>
+            <span class="n">save_csv</span><span class="o">=</span><span class="n">save_csv</span><span class="p">,</span>
+            <span class="n">csv_path</span><span class="o">=</span><span class="n">csv_path</span><span class="p">,</span>
+            <span class="n">save_annotated</span><span class="o">=</span><span class="n">save_annotated</span><span class="p">,</span>
+            <span class="n">output_folder</span><span class="o">=</span><span class="n">output_folder</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DeepfakeDetector.detect_video">
+<a class="viewcode-back" href="../../../mukh.deepfake_detection.html#mukh.deepfake_detection.deepfake_detector.DeepfakeDetector.detect_video">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect_video</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">save_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;deepfake_detections.csv&quot;</span><span class="p">,</span>
+        <span class="n">save_annotated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+        <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detects deepfake in the given video.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            video_path: Path to the input video</span>
+<span class="sd">            save_csv: Whether to save detection results to CSV file</span>
+<span class="sd">            csv_path: Path where to save the CSV file</span>
+<span class="sd">            save_annotated: Whether to save annotated video with results</span>
+<span class="sd">            output_folder: Folder path where to save annotated videos</span>
+<span class="sd">            num_frames: Number of equally spaced frames to analyze</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of DeepfakeDetection objects for analyzed frames</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">detect_video</span><span class="p">(</span>
+            <span class="n">video_path</span><span class="o">=</span><span class="n">video_path</span><span class="p">,</span>
+            <span class="n">save_csv</span><span class="o">=</span><span class="n">save_csv</span><span class="p">,</span>
+            <span class="n">csv_path</span><span class="o">=</span><span class="n">csv_path</span><span class="p">,</span>
+            <span class="n">save_annotated</span><span class="o">=</span><span class="n">save_annotated</span><span class="p">,</span>
+            <span class="n">output_folder</span><span class="o">=</span><span class="n">output_folder</span><span class="p">,</span>
+            <span class="n">num_frames</span><span class="o">=</span><span class="n">num_frames</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DeepfakeDetector.detect">
+<a class="viewcode-back" href="../../../mukh.deepfake_detection.html#mukh.deepfake_detection.deepfake_detector.DeepfakeDetector.detect">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">media_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">save_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;deepfake_detections.csv&quot;</span><span class="p">,</span>
+        <span class="n">save_annotated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">output_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span>
+        <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DeepfakeDetection</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Detects deepfake in the given media file (image or video).</span>
+
+<span class="sd">        Automatically determines whether the input is an image or video</span>
+<span class="sd">        based on file extension and calls the appropriate detection method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            media_path: Path to the input media file (image or video)</span>
+<span class="sd">            save_csv: Whether to save detection results to CSV file</span>
+<span class="sd">            csv_path: Path where to save the CSV file</span>
+<span class="sd">            save_annotated: Whether to save annotated media with results</span>
+<span class="sd">            output_folder: Folder path where to save annotated media</span>
+<span class="sd">            num_frames: Number of equally spaced frames to analyze for videos (default: 11)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DeepfakeDetection for images, List[DeepfakeDetection] for videos</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the file format is not supported</span>
+<span class="sd">            FileNotFoundError: If the media file doesn&#39;t exist</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">media_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Media file not found: </span><span class="si">{</span><span class="n">media_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get file extension</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">media_path</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+        <span class="c1"># Image extensions</span>
+        <span class="n">image_extensions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;.jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="s2">&quot;.bmp&quot;</span><span class="p">,</span> <span class="s2">&quot;.tiff&quot;</span><span class="p">,</span> <span class="s2">&quot;.tif&quot;</span><span class="p">}</span>
+        <span class="c1"># Video extensions</span>
+        <span class="n">video_extensions</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;.avi&quot;</span><span class="p">,</span> <span class="s2">&quot;.mov&quot;</span><span class="p">,</span> <span class="s2">&quot;.mkv&quot;</span><span class="p">,</span> <span class="s2">&quot;.wmv&quot;</span><span class="p">,</span> <span class="s2">&quot;.flv&quot;</span><span class="p">,</span> <span class="s2">&quot;.webm&quot;</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">image_extensions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detect_image</span><span class="p">(</span>
+                <span class="n">image_path</span><span class="o">=</span><span class="n">media_path</span><span class="p">,</span>
+                <span class="n">save_csv</span><span class="o">=</span><span class="n">save_csv</span><span class="p">,</span>
+                <span class="n">csv_path</span><span class="o">=</span><span class="n">csv_path</span><span class="p">,</span>
+                <span class="n">save_annotated</span><span class="o">=</span><span class="n">save_annotated</span><span class="p">,</span>
+                <span class="n">output_folder</span><span class="o">=</span><span class="n">output_folder</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">video_extensions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">detect_video</span><span class="p">(</span>
+                <span class="n">video_path</span><span class="o">=</span><span class="n">media_path</span><span class="p">,</span>
+                <span class="n">save_csv</span><span class="o">=</span><span class="n">save_csv</span><span class="p">,</span>
+                <span class="n">csv_path</span><span class="o">=</span><span class="n">csv_path</span><span class="p">,</span>
+                <span class="n">save_annotated</span><span class="o">=</span><span class="n">save_annotated</span><span class="p">,</span>
+                <span class="n">output_folder</span><span class="o">=</span><span class="n">output_folder</span><span class="p">,</span>
+                <span class="n">num_frames</span><span class="o">=</span><span class="n">num_frames</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported file format: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DeepfakeDetector.get_model_info">
+<a class="viewcode-back" href="../../../mukh.deepfake_detection.html#mukh.deepfake_detection.deepfake_detector.DeepfakeDetector.get_model_info">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_model_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns information about the current model.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dictionary containing model information including name,</span>
+<span class="sd">            confidence threshold, and device.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
+            <span class="s2">&quot;confidence_threshold&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span><span class="p">,</span>
+            <span class="s2">&quot;device&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="p">,</span> <span class="s2">&quot;device&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="s2">&quot;unknown&quot;</span>
+            <span class="p">),</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="DeepfakeDetector.set_confidence_threshold">
+<a class="viewcode-back" href="../../../mukh.deepfake_detection.html#mukh.deepfake_detection.deepfake_detector.DeepfakeDetector.set_confidence_threshold">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_confidence_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the confidence threshold for detections.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            threshold: New confidence threshold (0.0 to 1.0)</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If threshold is not between 0.0 and 1.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;=</span> <span class="n">threshold</span> <span class="o">&lt;=</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Confidence threshold must be between 0.0 and 1.0&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">confidence_threshold</span> <span class="o">=</span> <span class="n">threshold</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Ishan Dutta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

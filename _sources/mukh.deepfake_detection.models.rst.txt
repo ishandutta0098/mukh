@@ -1,0 +1,31 @@
+mukh.deepfake\_detection.models package
+=======================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   mukh.deepfake_detection.models.efficientnet
+   mukh.deepfake_detection.models.resnet_inception
+   mukh.deepfake_detection.models.resnext
+
+Submodules
+----------
+
+mukh.deepfake\_detection.models.base module
+-------------------------------------------
+
+.. automodule:: mukh.deepfake_detection.models.base
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: mukh.deepfake_detection.models
+   :members:
+   :show-inheritance:
+   :undoc-members:
