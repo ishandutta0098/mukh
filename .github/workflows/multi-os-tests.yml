@@ -1,0 +1,83 @@
+name: Multi-OS Tests
+
+on:
+  push:
+    branches: [ "**" ]  # Run on push to any branch
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-multi-os:
+    name: Test on ${{ matrix.os }} with Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10', '3.11', '3.12']
+        
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install system dependencies (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender-dev libgomp1
+
+    - name: Install system dependencies (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew install libomp
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev]
+
+    - name: Run linting
+      run: |
+        black --check --diff .
+        isort --check-only --diff .
+        flake8 mukh tests
+        mypy mukh
+
+    - name: Run tests
+      run: |
+        pytest tests/ --cov=mukh --cov-report=xml --cov-report=term-missing -v
+
+    - name: Run security checks
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
+      run: |
+        safety check
+        bandit -r mukh/
+
+    - name: Upload coverage to Codecov
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  summary:
+    name: Test Summary
+    needs: test-multi-os
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Check test results
+      run: |
+        if [[ "${{ needs.test-multi-os.result }}" == "success" ]]; then
+          echo "✅ All tests passed across all platforms!"
+          echo "Commit ${{ github.sha }} is ready."
+        else
+          echo "❌ Some tests failed. Check the job logs above."
+          exit 1
+        fi 
