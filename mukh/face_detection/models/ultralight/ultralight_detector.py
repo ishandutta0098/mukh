@@ -190,7 +190,7 @@ class UltralightDetector(BaseFaceDetector):
                 image_copy,
                 (int(bbox.x1), int(bbox.y1)),
                 (int(bbox.x2), int(bbox.y2)),
-                (0, 0, 255),  # Red color (BGR)
+                (0, 255, 0),  # Green color (BGR)
                 2,
             )
 
