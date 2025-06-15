@@ -123,7 +123,7 @@ media_path = "assets/images/img1.jpg" # Or pass a video path
 # Detect deepfakes
 result = pipeline.detect(
     media_path=media_path,
-    output_folder="output/deepfake_detection_pipeline,
+    output_folder="output/deepfake_detection_pipeline",
     save_csv=True,
     num_frames=11,        # Number of equally spaced video frames for analysis
 )
