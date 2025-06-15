@@ -26,7 +26,7 @@ git clone https://github.com/ishandutta0098/mukh.git
 cd mukh
 
 # Install in development mode
-pip install -e .
+pip install -e ".[dev]" --use-pep517
 ```
 
 ## Verify Installation
