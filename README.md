@@ -52,7 +52,6 @@ python3 -m venv mukh-venv
 source mukh-venv/bin/activate
 # On Windows:
 mukh-venv\Scripts\activate
-
 pip install --upgrade pip
 pip install mukh==0.1.14
 ```
