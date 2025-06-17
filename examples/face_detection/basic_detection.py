@@ -2,7 +2,7 @@
 Basic example showing how to use a single face detector to detect faces in an image.
 
 Usage:
-python -m examples.face_detection.basic_detection
+python examples/face_detection/basic_detection.py --detection_model mediapipe
 """
 
 import argparse
