@@ -2,7 +2,18 @@
 Basic example showing how to use deepfake detector to detect deepfakes in media files.
 
 Usage:
-python -m examples.deepfake_detection.detection
+For images:
+python examples/deepfake_detection/detection.py \
+  --detection_model resnet_inception \
+  --media_path assets/images/img1.jpg \
+  --confidence_threshold 0.5
+
+For videos:
+python examples/deepfake_detection/detection.py \
+  --detection_model resnet_inception \
+  --media_path assets/videos/deepfake_elon_musk.mp4 \
+  --confidence_threshold 0.5 \
+  --num_frames 11
 """
 
 import argparse
