@@ -5,7 +5,9 @@ This script shows various ways to use the ensemble deepfake detection pipeline
 with different model configurations and settings.
 
 Usage:
-python -m examples.pipelines.deepfake_detection --media_path assets/videos/deepfake_elon_musk.mp4 --output_folder output/deepfake_detection_pipeline
+python examples/pipelines/deepfake_detection.py \
+  --media_path assets/videos/deepfake_elon_musk.mp4 \
+  --output_folder output/deepfake_detection_pipeline
 """
 
 import argparse
