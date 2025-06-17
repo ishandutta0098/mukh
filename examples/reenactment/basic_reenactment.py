@@ -2,7 +2,11 @@
 Basic example showing how to use a single face reenactor to reenact a face from an image.
 
 Usage:
-python -m examples.reenactment.basic_reenactment --reenactor_model <reenactor_model>
+python examples/reenactment/basic_reenactment.py \
+  --reenactor_model tps \
+  --source_path assets/images/img1.jpg \
+  --driving_video_path assets/videos/video_1sec.mp4 \
+  --output_folder output
 """
 
 import argparse
