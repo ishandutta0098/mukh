@@ -303,10 +303,15 @@ Contributors will be recognized in:
 ### Getting Unstuck
 
 If you're stuck:
+
 1. Check existing issues and discussions
+
 2. Read the documentation thoroughly
+
 3. Look at similar implementations in the codebase
+
 4. Ask for help in GitHub discussions
+
 
 ## Thank You!
 
