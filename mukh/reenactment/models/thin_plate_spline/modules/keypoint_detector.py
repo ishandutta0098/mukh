@@ -1,3 +1,9 @@
+"""
+Source: https://github.com/yoyo-nb/Thin-Plate-Spline-Motion-Model
+
+LICENSE: MIT
+"""
+
 import torch
 from torch import nn
 from torchvision import models

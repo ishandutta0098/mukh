@@ -4,6 +4,7 @@ This module implements a deepfake detection model using InceptionResnetV1
 with explainability features through GradCAM visualization.
 
 GitHub: https://github.com/aaronespasa/deepfake-detection
+LICENSE: Apache License 2.0
 """
 
 import os

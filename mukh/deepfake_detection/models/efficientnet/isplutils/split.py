@@ -3,6 +3,8 @@ from typing import Dict, List, Tuple
 """
 Video Face Manipulation Detection Through Ensemble of CNNs
 
+Author Credits:
+
 Image and Sound Processing Lab - Politecnico di Milano
 
 Nicolò Bonettini
@@ -10,6 +12,9 @@ Edoardo Daniele Cannas
 Sara Mandelli
 Luca Bondi
 Paolo Bestagini
+
+GitHub: https://github.com/polimi-ispl/icpr2020dfdc
+License: GNU GENERAL PUBLIC LICENSE
 """
 import numpy as np
 import pandas as pd

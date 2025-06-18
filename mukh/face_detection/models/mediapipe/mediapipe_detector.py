@@ -2,6 +2,8 @@
 
 This module implements Google's MediaPipe face detection model.
 Source: https://github.com/google-ai-edge/mediapipe
+
+LICENSE: Apache License 2.0
 """
 
 from typing import List, Tuple

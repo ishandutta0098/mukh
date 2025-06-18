@@ -1,9 +1,12 @@
 """EfficientNet deepfake detection model implementation.
 
 This module implements a deepfake detection model using EfficientNet architecture
-based on the fornet library implementation
+based on the fornet library implementation.
+
+Author Credits:
 
 GitHub: https://github.com/polimi-ispl/icpr2020dfdc
+License: GNU GENERAL PUBLIC LICENSE
 """
 
 from typing import List, Optional

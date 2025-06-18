@@ -6,6 +6,8 @@ Original implementation by M.I. Hollemans.
 
 The model is optimized for mobile devices and provides both bounding box
 detection and 6 facial landmarks.
+
+LICENSE: Apache License 2.0
 """
 
 from typing import List

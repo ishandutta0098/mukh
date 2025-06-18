@@ -1,6 +1,8 @@
 """Implementation of face reenactment using Thin Plate Spline model.
 
 Source: https://github.com/yoyo-nb/Thin-Plate-Spline-Motion-Model
+
+LICENSE: MIT
 """
 
 import os

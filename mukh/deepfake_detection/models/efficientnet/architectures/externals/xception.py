@@ -20,6 +20,12 @@ normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5],
                                   std=[0.5, 0.5, 0.5])
 
 The resize parameter of the validation transform should be 333, and make sure to center crop at 299x299
+
+Author Credits:
+
+GitHub: https://github.com/polimi-ispl/icpr2020dfdc
+License: GNU GENERAL PUBLIC LICENSE
+
 """
 
 from __future__ import absolute_import, division, print_function

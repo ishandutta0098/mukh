@@ -1,3 +1,9 @@
+"""
+Source: https://github.com/yoyo-nb/Thin-Plate-Spline-Motion-Model
+
+LICENSE: MIT
+"""
+
 import torch
 import torch.nn.functional as F
 from torch import nn

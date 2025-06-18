@@ -3,6 +3,8 @@ UltraLight PyTorch implementation adapted from:
 https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB
 
 Original implementation by Linzaer
+
+LICENSE: MIT
 """
 
 import torch.nn as nn
