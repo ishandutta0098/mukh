@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VERSION="0.1.14"
+
 # Deactivate any existing conda environments
 conda deactivate
 
@@ -12,46 +14,123 @@ conda create -n mukh-pip python=3.10 -y
 # Activate conda environment
 eval "$(conda shell.bash hook)"
 conda activate mukh-pip
-pip install mukh==0.1.14
+pip install mukh==$VERSION
 
+# Function to display usage
+usage() {
+    echo "Usage: $0 [options]"
+    echo "Options:"
+    echo "  -f    Run face detection tests"
+    echo "  -r    Run reenactment tests"
+    echo "  -d    Run deepfake detection tests"
+    echo "  -p    Run deepfake detection pipeline tests"
+    echo "  -a    Run all tests"
+    exit 1
+}
+
+# Check for arguments
+if [ $# -eq 0 ]; then
+    usage
+fi
+
+# Clean output directory
 echo "\nCleaning output directory..."
 rm -rf output
 echo "Output directory cleaned"
 echo "--------------------------------"
 
-echo "\nTesting deepfake detection pipeline..."
-python -m examples.pipelines.deepfake_detection --media_path assets/images/img1.jpg --output_folder output/deepfake_detection_pipeline_img
-python -m examples.pipelines.deepfake_detection --media_path assets/videos/deepfake_elon_musk.mp4 --output_folder output/deepfake_detection_pipeline_video
-echo "Completed testing deepfake detection pipeline"
-echo "--------------------------------"
+# Parse options
+while getopts "frdpa" opt; do
+    case ${opt} in
+        f )
+            echo "Testing Face Detection:"
+            echo "--------------------------------"
+            echo ""
+            echo "Testing blazeface"
+            python -m examples.face_detection.basic_detection --detection_model blazeface
+            echo "Completed testing blazeface"
+            echo ""
+            echo "Testing ultralight"
+            python -m examples.face_detection.basic_detection --detection_model ultralight
+            echo "Completed testing ultralight"
+            echo ""
+            echo "Testing mediapipe"
+            python -m examples.face_detection.basic_detection --detection_model mediapipe
+            echo "Completed testing mediapipe"
+            ;;
+        r )
+            echo "Testing Reenactment:"
+            echo "--------------------------------"
+            echo ""
+            echo "Testing tps"
+            python -m examples.reenactment.basic_reenactment --reenactor_model tps
+            echo "Completed testing tps"
+            ;;
+        d )
+            echo "Testing Deepfake Detection:"
+            echo "--------------------------------"
+            echo ""
+            echo "Testing resnet_inception"
+            python -m examples.deepfake_detection.detection --detection_model resnet_inception
+            echo "Completed testing resnet_inception"
+            echo ""
+            echo "Testing efficientnet"
+            python -m examples.deepfake_detection.detection --detection_model efficientnet
+            echo "Completed testing efficientnet"
+            ;;
+        p )
+            echo "Testing Deepfake Detection Pipeline:"
+            echo "--------------------------------"
+            python -m examples.pipelines.deepfake_detection
+            echo "Completed testing deepfake detection pipeline"
+            ;;
+        a )
+            echo "Testing Face Detection:"
+            echo "--------------------------------"
+            echo ""
+            echo "Testing blazeface"
+            python -m examples.face_detection.basic_detection --detection_model blazeface
+            echo "Completed testing blazeface"
+            echo ""
+            echo "Testing ultralight"
+            python -m examples.face_detection.basic_detection --detection_model ultralight
+            echo "Completed testing ultralight"
+            echo ""
+            echo "Testing mediapipe"
+            python -m examples.face_detection.basic_detection --detection_model mediapipe
+            echo "Completed testing mediapipe"
+            echo "--------------------------------"
 
-echo "\nTesting face detection..."
-echo "--------------------------------"
+            echo "Testing Reenactment:"
+            echo "--------------------------------"
+            echo ""
+            echo "Testing tps"
+            python -m examples.reenactment.basic_reenactment --reenactor_model tps
+            echo "Completed testing reenactment"
+            echo "--------------------------------"
 
-echo "\nTesting blazeface..."
-echo "--------------------------------"
-python -m examples.face_detection.basic_detection --detection_model blazeface
-echo "Completed testing blazeface"
-echo "--------------------------------"
+            echo "Testing Deepfake Detection:"
+            echo "--------------------------------"
+            echo ""
+            echo "Testing resnet_inception"
+            python -m examples.deepfake_detection.detection --detection_model resnet_inception
+            echo "Completed testing resnet_inception"
+            echo ""     
+            echo "Testing efficientnet"
+            python -m examples.deepfake_detection.detection --detection_model efficientnet
+            echo "Completed testing efficientnet"
+            echo "--------------------------------"
 
-echo "\nTesting ultralight..."
-echo "--------------------------------"
-python -m examples.face_detection.basic_detection --detection_model ultralight
-echo "Completed testing ultralight"
-echo "--------------------------------"
-
-echo "\nTesting mediapipe..."
-python -m examples.face_detection.basic_detection --detection_model mediapipe
-echo "Completed testing mediapipe"
-echo "--------------------------------"
-
-echo "\nTesting deepfake detection..."
-python -m examples.deepfake_detection.detection --detection_model resnet_inception
-python -m examples.deepfake_detection.detection --detection_model efficientnet
-echo "Completed testing deepfake detection"
-echo "--------------------------------"
-
-echo "\nTesting reenactment..."
-python -m examples.reenactment.basic_reenactment --reenactor_model tps
-echo "Completed testing reenactment"
-echo "--------------------------------"
+            echo "Testing Deepfake Detection Pipeline:"
+            echo "--------------------------------"
+            echo "" 
+            echo "Testing deepfake detection pipeline"
+            python -m examples.pipelines.deepfake_detection
+            echo "Completed testing deepfake detection pipeline"
+            echo "--------------------------------"
+            ;;
+        * )
+            usage
+            ;;
+    esac
+done
