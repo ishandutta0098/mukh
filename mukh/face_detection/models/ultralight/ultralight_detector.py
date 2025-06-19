@@ -155,7 +155,7 @@ class UltralightDetector(BaseFaceDetector):
                 y1=int(box[1] * height_scale),
                 x2=int(box[2] * width_scale),
                 y2=int(box[3] * height_scale),
-                confidence=probs[i],
+                confidence=probs[i].item(),
             )
             # Ultralight doesn't provide landmarks, so we pass None
             faces.append(FaceDetection(bbox=bbox))
