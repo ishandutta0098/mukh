@@ -275,6 +275,8 @@ Model configurations: {
 }
 ```
   
+## Citations
+For a detailed list of models, libraries, and datasets used, please refer to [CITATIONS.md](CITATIONS.md).
+  
 ## Contact
-
 For questions and feedback, please open an issue on GitHub.

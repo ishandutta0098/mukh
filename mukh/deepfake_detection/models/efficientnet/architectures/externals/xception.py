@@ -24,7 +24,7 @@ The resize parameter of the validation transform should be 333, and make sure to
 Author Credits:
 
 GitHub: https://github.com/polimi-ispl/icpr2020dfdc
-License: GNU GENERAL PUBLIC LICENSE
+License: GNU GENERAL PUBLIC LICENSE 3.0
 
 """
 

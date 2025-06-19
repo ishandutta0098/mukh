@@ -6,7 +6,7 @@ based on the fornet library implementation.
 Author Credits:
 
 GitHub: https://github.com/polimi-ispl/icpr2020dfdc
-License: GNU GENERAL PUBLIC LICENSE
+License: GNU GENERAL PUBLIC LICENSE 3.0
 """
 
 from typing import List, Optional
@@ -92,7 +92,7 @@ class EfficientNetDetector(BaseDeepfakeDetector):
         model_key = "{:s}_{:s}".format(self.net_model, self.train_db)
         model_url = weights.weight_url[model_key]
         net = getattr(fornet, self.net_model)().eval().to(self.device)
-        
+
         try:
             # Try to load from original URL first
             net.load_state_dict(

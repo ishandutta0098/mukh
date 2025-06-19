@@ -2,7 +2,7 @@
 
 Source: https://github.com/yoyo-nb/Thin-Plate-Spline-Motion-Model
 
-LICENSE: MIT
+LICENSE: MIT License
 """
 
 import os

@@ -14,7 +14,7 @@ Luca Bondi
 Paolo Bestagini
 
 GitHub: https://github.com/polimi-ispl/icpr2020dfdc
-License: GNU GENERAL PUBLIC LICENSE
+License: GNU GENERAL PUBLIC LICENSE 3.0
 """
 import numpy as np
 import pandas as pd
