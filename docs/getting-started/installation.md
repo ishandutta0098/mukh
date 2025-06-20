@@ -7,6 +7,30 @@ Mukh requires Python 3.10 or later. Make sure you have a compatible version inst
 ```bash
 python --version
 ```
+## Using a Virtual Environment (Recommended)
+
+It is recommended to install Mukh inside a virtual environment to avoid dependency conflicts:
+
+Option 1: Using Conda
+
+```bash
+conda create -n mukh-dev python=3.10 -y
+conda activate mukh-dev
+pip install mukh==0.1.14
+```
+
+Option 2: Using Python venv
+
+```bash
+python3 -m venv mukh-venv
+# Activate the virtual environmen
+# On Linux/macOS:
+source mukh-venv/bin/activate
+# On Windows:
+mukh-venv\Scripts\activate
+pip install --upgrade pip
+pip install mukh==0.1.14
+```
 
 ## Installation via pip
 
