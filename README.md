@@ -55,8 +55,8 @@ detector = FaceDetector.create(detection_model)
 # Detect faces
 detections = detector.detect(
     image_path="assets/images/img1.jpg",                       # Path to the image to detect faces in
-    save_csv=True,                                             # Save the detections to a CSV file
-    csv_path=f"output/{detection_model}/detections.csv",       # Path to save the CSV file
+    save_json=True,                                             # Save the detections to a JSON file
+    json_path=f"output/{detection_model}/detections.json",       # Path to save the JSON file
     save_annotated=True,                                       # Save the annotated image
     output_folder=f"output/{detection_model}",                   # Path to save the annotated image
 )

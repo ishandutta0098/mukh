@@ -9,8 +9,8 @@ detector = FaceDetector.create("mediapipe")  # Options: "blazeface", "mediapipe"
 
 detections = detector.detect(
     image_path="assets/images/img1.jpg",
-    save_csv=True,
-    csv_path="output/mediapipe/detections.csv",
+    save_json=True,
+    json_path="output/mediapipe/detections.json",
     save_annotated=True,
     output_folder="output/mediapipe"
 )
