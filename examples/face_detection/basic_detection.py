@@ -7,7 +7,6 @@ python examples/face_detection/basic_detection.py \
     --image_path assets/images/img1.jpg
 """
 
-
 import argparse
 
 from mukh.face_detection import FaceDetector

@@ -123,7 +123,11 @@ class BlazeFaceDetector(BaseFaceDetector):
             y2 = float(detection[2]) * orig_h  # ymax
 
             bbox = BoundingBox(
-                x1=int(x1), y1=int(y1), x2=int(x2), y2=int(y2), confidence=detection[16].item(),
+                x1=int(x1),
+                y1=int(y1),
+                x2=int(x2),
+                y2=int(y2),
+                confidence=detection[16].item(),
             )
 
             faces.append(FaceDetection(bbox=bbox))
