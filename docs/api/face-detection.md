@@ -32,8 +32,8 @@ Returns a list of available face detection model names.
 ```python
 def detect(
     image_path: str,
-    save_csv: bool = False,
-    csv_path: str = "detections.csv", 
+    save_json: bool = False,
+    json_path: str = "detections.json", 
     save_annotated: bool = False,
     output_folder: str = "output"
 ) -> List[FaceDetection]
@@ -41,8 +41,8 @@ def detect(
 
 **Parameters:**  
 - `image_path`: Path to the input image  
-- `save_csv`: Whether to save detection results to CSV file  
-- `csv_path`: Path where to save the CSV file  
+- `save_json`: Whether to save detection results to JSON file  
+- `json_path`: Path where to save the JSON file  
 - `save_annotated`: Whether to save annotated image with bounding boxes  
 - `output_folder`: Folder path where to save annotated images  
 

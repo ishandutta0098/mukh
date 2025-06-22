@@ -11,6 +11,7 @@ from typing import List, Optional
 
 import cv2
 import numpy as np
+import json
 
 from ...core.types import FaceDetection
 
@@ -59,8 +60,8 @@ class BaseFaceDetector(ABC):
     def detect(
         self,
         image_path: str,
-        save_csv: bool = False,
-        csv_path: str = "detections.csv",
+        save_json: bool = True,
+        json_path: str = "detections.json",
         save_annotated: bool = False,
         output_folder: str = "output",
     ) -> List[FaceDetection]:
@@ -68,8 +69,8 @@ class BaseFaceDetector(ABC):
 
         Args:
             image_path: Path to the input image.
-            save_csv: Whether to save detection results to CSV file.
-            csv_path: Path where to save the CSV file.
+            save_json: Whether to save detection results to JSON file, defaults to True.
+            json_path: Path where to save the JSON file.
             save_annotated: Whether to save annotated image with bounding boxes.
             output_folder: Folder path where to save annotated images.
 
@@ -78,50 +79,41 @@ class BaseFaceDetector(ABC):
         """
         pass
 
-    def _save_detections_to_csv(
-        self, detections: List[FaceDetection], image_path: str, csv_path: str
+    def _save_detections_to_json(
+        self, detections: List[FaceDetection], image_path: str, json_path: str
     ) -> None:
-        """Saves face detection results to a CSV file.
+        """Saves face detection results to a JSON file.
 
         Args:
             detections: List of face detections to save.
             image_path: Path to the source image.
-            csv_path: Path where to save the CSV file.
+            json_path: Path where to save the JSON file.
         """
         # Extract just the filename from the full path
         image_name = os.path.basename(image_path)
 
-        # Check if CSV file exists to determine if we need to write headers
-        file_exists = os.path.exists(csv_path)
-
         # Create directory if it doesn't exist
         os.makedirs(
-            os.path.dirname(csv_path) if os.path.dirname(csv_path) else ".",
+            os.path.dirname(json_path) if os.path.dirname(json_path) else ".",
             exist_ok=True,
         )
 
-        # Open CSV file in append mode
-        with open(csv_path, "a", newline="", encoding="utf-8") as csvfile:
-            fieldnames = ["image_name", "x1", "y1", "x2", "y2", "confidence"]
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        # Prepare data for JSON
+        detection_results = []
+        for detection in detections:
+            bbox = detection.bbox
+            detection_results.append({
+                "image_name": image_name,
+                "x1": bbox.x1,
+                "y1": bbox.y1,
+                "x2": bbox.x2,
+                "y2": bbox.y2,
+                "confidence": bbox.confidence,
+            })
 
-            # Write header if file is new
-            if not file_exists:
-                writer.writeheader()
-
-            # Write detection results
-            for i, detection in enumerate(detections):
-                bbox = detection.bbox
-                writer.writerow(
-                    {
-                        "image_name": image_name,
-                        "x1": bbox.x1,
-                        "y1": bbox.y1,
-                        "x2": bbox.x2,
-                        "y2": bbox.y2,
-                        "confidence": bbox.confidence,
-                    }
-                )
+        # Write to JSON (overwrite or append logic can be modified as needed)
+        with open(json_path, "w", encoding="utf-8") as jsonfile:
+            json.dump(detection_results, jsonfile, indent=4)
 
     def _draw_detections(
         self, image: np.ndarray, faces: List[FaceDetection]

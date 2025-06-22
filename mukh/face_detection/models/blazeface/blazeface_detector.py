@@ -69,8 +69,8 @@ class BlazeFaceDetector(BaseFaceDetector):
     def detect(
         self,
         image_path: str,
-        save_csv: bool = False,
-        csv_path: str = "detections.csv",
+        save_json: bool = True,
+        json_path: str = "detections.json",
         save_annotated: bool = False,
         output_folder: str = "output",
     ) -> List[FaceDetection]:
@@ -81,8 +81,8 @@ class BlazeFaceDetector(BaseFaceDetector):
 
         Args:
             image_path: Path to the input image.
-            save_csv: Whether to save detection results to CSV file.
-            csv_path: Path where to save the CSV file.
+            save_json: Whether to save detection results to JSON file, defaults to True.
+            json_path: Path where to save the JSON file.
             save_annotated: Whether to save annotated image with bounding boxes.
             output_folder: Folder path where to save annotated images.
 
@@ -128,9 +128,9 @@ class BlazeFaceDetector(BaseFaceDetector):
 
             faces.append(FaceDetection(bbox=bbox))
 
-        # Save to CSV if requested
-        if save_csv:
-            self._save_detections_to_csv(faces, image_path, csv_path)
+        # Save to JSON if requested
+        if save_json:
+            self._save_detections_to_json(faces, image_path, json_path)
 
         # Save annotated image if requested
         if save_annotated:
