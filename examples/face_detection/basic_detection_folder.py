@@ -16,9 +16,9 @@ MediaPipe face detection does not work reliably with multiprocessing due to Open
 Example usage:
 python basic_detection_folder.py \
     --detection_model blazeface \
-    --images_folder data/demo_fake_extracted/fake_car_show_all_frames \
-    --output_folder output/batch_detection/fake_car_show_all_frames \
-    --json_path output/batch_detection/all_detections.json \
+    --images_folder assets/images \
+    --output_folder output \
+    --json_path output/detections.json \
     --num_processes 0
 """
 
@@ -40,19 +40,19 @@ if __name__ == "__main__":
     parser.add_argument(
         "--images_folder",
         type=str,
-        default="data/demo_fake_extracted/fake_car_show_all_frames",
+        default="assets/images",
         help="Path to the folder containing the images to detect faces in.",
     )
     parser.add_argument(
         "--output_folder",
         type=str,
-        default="output/batch_detection/fake_car_show_all_frames",
+        default="output",
         help="Path to save the output files.",
     )
     parser.add_argument(
         "--json_path",
         type=str,
-        default="output/batch_detection/all_detections.json",
+        default="output/detections.json",
         help="Path to save the consolidated JSON file with all detections.",
     )
     parser.add_argument(
