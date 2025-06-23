@@ -1,42 +1,40 @@
-import os
+"""
+This script demonstrates how to use the FaceDetector class to detect faces in a folder of images.
+It uses the  multiprocessing to detect faces in all images in the folder.
+It also saves the detections to a JSON file and annotated images to a folder.
+By default it runs sequentially by using num_processes=0.
+If you want to run it in parallel, you can set num_processes to the number of processes you want to use.
+
+Use mukh.utils.parallel.get_cpu_count() to get the number of CPU cores available.
+
+Recommended num_processes for models other than MediaPipe is CPU_COUNT() - 1.
+
+NOTE: 
+In case of MediaPipe, recommended num_processes is 0.
+MediaPipe face detection does not work reliably with multiprocessing due to OpenGL context issues.
+
+Example usage:
+python basic_detection_folder.py \
+    --detection_model blazeface \
+    --images_folder data/demo_fake_extracted/fake_car_show_all_frames \
+    --output_folder output/batch_detection/fake_car_show_all_frames \
+    --json_path output/batch_detection/all_detections.json \
+    --num_processes 0
+"""
+
 import argparse
-from functools import partial
+
 from mukh.face_detection import FaceDetector
-from mukh.utils.parallel import tqdm_parallel_processor
-
-def process_image(image: str, detection_model: str, images_folder: str, output_folder: str) -> None:
-    """
-    Process a single image for face detection.
-    Args:
-        image: The filename of the image to process.
-        detection_model: The face detection model to use.
-        images_folder: Path to the folder containing the input images.
-        output_folder: Path to save the output.
-    """
-    # Initialize the detector inside the worker process
-    local_detector = FaceDetector.create(detection_model)
-
-    # Construct the full path to the image
-    image_path = os.path.join(images_folder, image)
-    output_csv_path = os.path.join(output_folder, image.split('.')[0], "detections.csv")
-    output_image_folder = os.path.join(output_folder, image.split('.')[0])
-
-    # Perform face detection
-    local_detector.detect(
-        image_path=image_path,
-        save_csv=True,
-        csv_path=output_csv_path,
-        save_annotated=True,
-        output_folder=output_image_folder,
-    )
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Face Detection Example")
+    parser = argparse.ArgumentParser(
+        description="Face Detection Example - Batch Processing"
+    )
     parser.add_argument(
         "--detection_model",
         type=str,
         choices=["blazeface", "mediapipe", "ultralight"],
-        default="ultralight",
+        default="blazeface",
         help="Choose the face detection model to use.",
     )
     parser.add_argument(
@@ -48,63 +46,48 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output_folder",
         type=str,
-        default="output/mediapipe/fake_car_show_all_frames",
-        help="Path to save the annotated image.",
+        default="output/batch_detection/fake_car_show_all_frames",
+        help="Path to save the output files.",
+    )
+    parser.add_argument(
+        "--json_path",
+        type=str,
+        default="output/batch_detection/all_detections.json",
+        help="Path to save the consolidated JSON file with all detections.",
+    )
+    parser.add_argument(
+        "--save_annotated",
+        action="store_true",
+        help="Save annotated images with bounding boxes.",
+    )
+    parser.add_argument(
+        "--num_processes",
+        type=int,
+        default=0,
+        help="Number of processes to use for parallel processing. Defaults to 0. Will run sequentially if set to 0.",
     )
 
     args = parser.parse_args()
 
-    # Get all images in the folder
-    images = [f for f in os.listdir(args.images_folder) if f.endswith((".jpg", ".png"))]
+    # Create the face detector
+    detector = FaceDetector.create(args.detection_model)
 
-    # Create a partial function with the fixed arguments
-    process_image_partial = partial(
-        process_image,
-        detection_model=args.detection_model,
+    # Process all images in the folder
+    print(
+        f"Processing images from {args.images_folder} using {args.detection_model} model..."
+    )
+
+    detections = detector.detect_folder(
         images_folder=args.images_folder,
         output_folder=args.output_folder,
+        save_json=True,
+        json_path=args.json_path,
+        save_annotated=args.save_annotated,
+        num_processes=args.num_processes,
+        detector_model=args.detection_model,
     )
 
-    # Process images in parallel
-    tqdm_parallel_processor(
-        function=process_image_partial,
-        iterable=images,
-        description="Processing images",
-        num_processes=os.cpu_count(),
-    )
-
-# import argparse
-# import os
-
-# from mukh.face_detection import FaceDetector
-# from tqdm import tqdm
-
-# parser = argparse.ArgumentParser(description="Face Detection Example")
-# parser.add_argument(
-#     "--detection_model",
-#     type=str,
-#     choices=["blazeface", "mediapipe", "ultralight"],
-#     default="mediapipe",
-#     help="Choose the face detection model to use.",
-# )
-
-# args = parser.parse_args()
-
-# # Create detector
-# detector = FaceDetector.create(args.detection_model)
-
-# # Process all images in the demo_images folder
-# images_folder = "data/demo_fake_extracted/fake_car_show_all_frames"
-# for image_name in tqdm(os.listdir(images_folder)):
-#     if image_name.endswith((".jpg", ".png")):
-#         # Get image path
-#         image_path = os.path.join(images_folder, image_name)
-
-#         # Detect faces
-#         detections = detector.detect(
-#             image_path=image_path,  # Path to the image to detect faces in
-#             save_csv=True,  # Save the detections to a CSV file
-#             csv_path=f"output/{args.detection_model}/{image_name.split('.')[0]}/detections.csv",  # Path to save the CSV file
-#             save_annotated=True,  # Save the annotated image
-#             output_folder=f"output/{args.detection_model}/{image_name.split('.')[0]}",  # Path to save the annotated image
-#         )
+    print(f"Completed! Processed {len(detections)} total detections across all images.")
+    print(f"Results saved to: {args.json_path}")
+    if args.save_annotated:
+        print(f"Annotated images saved to: {args.output_folder}")

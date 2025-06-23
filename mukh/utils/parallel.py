@@ -1,20 +1,27 @@
+import multiprocessing as mp
 from typing import Any, Callable, Iterable, Optional
 
-import multiprocessing as mp
 from tqdm import tqdm
+
+
+def get_cpu_count() -> int:
+    """
+    Get the number of CPU cores available.
+    """
+    return mp.cpu_count()
 
 
 class MultiProcessor:
     """
     A multiprocessing utility with progress bar support.
-    
+
     This class provides methods to execute functions on iterables either sequentially
     or in parallel with customizable progress tracking.
     """
-    
+
     def __init__(
         self,
-        num_processes: Optional[int] = None,
+        num_processes: Optional[int] = 0,
         maintain_order: bool = False,
         initializer_func: Optional[Callable[..., Any]] = None,
         initializer_args: Iterable[Any] = (),
@@ -25,8 +32,7 @@ class MultiProcessor:
         Initialize the ParallelProcessor.
 
         Args:
-            num_processes: Number of parallel processes to use. Defaults to the number of CPU cores if None.
-                Executes sequentially if set to 0.
+            num_processes: Number of parallel processes to use. Defaults to 0. Executes sequentially if set to 0.
             maintain_order: Whether to preserve the order of the input iterable in the results. Default is False.
             initializer_func: A function to execute at the start of each process.
             initializer_args: Arguments to pass to the initializer function.
@@ -39,7 +45,7 @@ class MultiProcessor:
         self.initializer_args = initializer_args
         self.start_mode = start_mode
         self.progress_bar_options = progress_bar_options or {}
-    
+
     def process(
         self,
         function: Callable[[Any], Any],
@@ -65,19 +71,22 @@ class MultiProcessor:
             processor = ParallelProcessor(num_processes=4)
             results = processor.process(function, iterable, description)
         """
+
         def process_items():
             if self.num_processes != 0:
                 pool = mp.get_context(self.start_mode).Pool(
                     self.num_processes, self.initializer_func, self.initializer_args
                 )
-            processor = map if self.num_processes == 0 else (
-                pool.imap if self.maintain_order else pool.imap_unordered
+            processor = (
+                map
+                if self.num_processes == 0
+                else (pool.imap if self.maintain_order else pool.imap_unordered)
             )
             total = len(iterable) if hasattr(iterable, "__len__") else total_elements
             yield from tqdm(
-                processor(function, iterable), 
-                desc=description, 
-                total=total, 
+                processor(function, iterable),
+                desc=description,
+                total=total,
                 **self.progress_bar_options
             )
             if self.num_processes != 0:
