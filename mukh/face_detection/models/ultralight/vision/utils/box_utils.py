@@ -28,7 +28,7 @@ def generate_priors(
                     w = min_box / image_size[0]
                     h = min_box / image_size[1]
                     priors.append([x_center, y_center, w, h])
-    print("priors nums:{}".format(len(priors)))
+    # print("priors nums:{}".format(len(priors)))
     priors = torch.tensor(priors)
     if clamp:
         torch.clamp(priors, 0.0, 1.0, out=priors)

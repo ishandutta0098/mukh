@@ -56,7 +56,7 @@ class Predictor:
             for i in range(1):
                 self.timer.start()
                 scores, boxes = self.net.forward(images)
-                print("Inference time: ", self.timer.end())
+                # print("Inference time: ", self.timer.end())
         boxes = boxes[0]
         scores = scores[0]
         if not prob_threshold:
