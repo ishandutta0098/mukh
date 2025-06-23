@@ -64,7 +64,7 @@ detections = detector.detect(
   
 ### Example
 ```python 
-python examples/face_detection/basic_detection.py --detection_model mediapipe
+python examples/face_detection/basic_detection_single_image.py --detection_model mediapipe
 ```
 
 ### Output Annotated Image

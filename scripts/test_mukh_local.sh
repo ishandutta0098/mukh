@@ -36,15 +36,15 @@ while getopts "frdpa" opt; do
             echo "--------------------------------"
             echo ""
             echo "Testing blazeface"
-            python -m examples.face_detection.basic_detection --detection_model blazeface
+            python -m examples.face_detection.basic_detection_single_image --detection_model blazeface
             echo "Completed testing blazeface"
             echo ""
             echo "Testing ultralight"
-            python -m examples.face_detection.basic_detection --detection_model ultralight
+            python -m examples.face_detection.basic_detection_single_image --detection_model ultralight
             echo "Completed testing ultralight"
             echo ""
             echo "Testing mediapipe"
-            python -m examples.face_detection.basic_detection --detection_model mediapipe
+            python -m examples.face_detection.basic_detection_single_image --detection_model mediapipe
             echo "Completed testing mediapipe"
             ;;
         r )
@@ -78,15 +78,15 @@ while getopts "frdpa" opt; do
             echo "--------------------------------"
             echo ""
             echo "Testing blazeface"
-            python -m examples.face_detection.basic_detection --detection_model blazeface
+            python -m examples.face_detection.basic_detection_single_image --detection_model blazeface
             echo "Completed testing blazeface"
             echo ""
             echo "Testing ultralight"
-            python -m examples.face_detection.basic_detection --detection_model ultralight
+            python -m examples.face_detection.basic_detection_single_image --detection_model ultralight
             echo "Completed testing ultralight"
             echo ""
             echo "Testing mediapipe"
-            python -m examples.face_detection.basic_detection --detection_model mediapipe
+            python -m examples.face_detection.basic_detection_single_image --detection_model mediapipe
             echo "Completed testing mediapipe"
             echo "--------------------------------"
 
