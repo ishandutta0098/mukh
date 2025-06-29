@@ -14,3 +14,4 @@ mkdocs-literate-nav
 mkdocs-section-index
 mkdocstrings[python]
 huggingface-hub[cli]
+pyyaml
