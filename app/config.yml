@@ -1,0 +1,145 @@
+# Mukh Apps Design Configuration
+
+# Theme Configuration
+theme:
+  primary_hue: "violet"
+  secondary_hue: "blue"
+  neutral_hue: "slate"
+  
+  # Advanced dark theme colors
+  colors:
+    body_background_fill_dark: "#0f0f23"
+    background_fill_primary_dark: "#1a1a2e"
+    background_fill_secondary_dark: "#16213e"
+    border_color_primary_dark: "#2d3748"
+    accent_color: "#667eea"
+    accent_secondary: "#764ba2"
+    success_color: "#10b981"
+    warning_color: "#f59e0b"
+    error_color: "#ef4444"
+
+# Typography Configuration
+typography:
+  font_family: "Inter"
+  font_weights: "300;400;500;600;700;800"
+  google_fonts_url: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+  
+  # Advanced typography scale
+  header_xl: "3rem"
+  header_lg: "2.5rem" 
+  header_md: "2rem"
+  header_sm: "1.5rem"
+  body_lg: "1.2rem"
+  body_md: "1rem"
+  body_sm: "0.9rem"
+  
+  line_heights:
+    tight: "1.25"
+    normal: "1.5"
+    relaxed: "1.6"
+    loose: "1.8"
+
+# Advanced Styling Configuration
+styling:
+  # Container styling
+  container:
+    max_width: "100%"
+    padding: "20px"
+    background: "#0a0a0a"
+    
+  # Header section
+  header:
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+    padding: "40px"
+    border_radius: "15px"
+    margin_bottom: "30px"
+    text_align: "center"
+    box_shadow: "0 8px 32px rgba(102, 126, 234, 0.3)"
+    
+  # Card styling
+  card:
+    background: "linear-gradient(145deg, #1a1a2e, #16213e)"
+    border_radius: "16px"
+    padding: "24px"
+    margin: "15px 0"
+    border: "1px solid #2d3748"
+    box_shadow: "0 4px 20px rgba(0, 0, 0, 0.4)"
+    transition: "all 0.3s ease"
+    
+  card_hover:
+    transform: "translateY(-4px)"
+    box_shadow: "0 12px 40px rgba(102, 126, 234, 0.2)"
+    border_color: "#667eea"
+    
+  # Section styling
+  section:
+    background: "#1a1a2e"
+    padding: "25px"
+    border_radius: "12px"
+    margin_bottom: "20px"
+    border: "1px solid #2d3748"
+    box_shadow: "0 2px 15px rgba(0, 0, 0, 0.3)"
+    
+  # Button styling
+  button:
+    primary_gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+    border_radius: "8px"
+    padding: "12px 24px"
+    font_weight: "600"
+    text_transform: "none"
+    box_shadow: "0 4px 15px rgba(102, 126, 234, 0.4)"
+    transition: "all 0.3s ease"
+    
+  button_hover:
+    transform: "translateY(-2px)"
+    box_shadow: "0 6px 25px rgba(102, 126, 234, 0.6)"
+    
+  # Input styling
+  input:
+    background: "#16213e"
+    border: "2px solid #2d3748"
+    border_radius: "8px"
+    padding: "12px"
+    color: "#e2e8f0"
+    
+  input_focus:
+    border_color: "#667eea"
+    background: "#1a1a2e"
+    box_shadow: "0 0 0 3px rgba(102, 126, 234, 0.1)"
+    
+  # Gallery styling
+  gallery:
+    background: "#1a1a2e"
+    border_radius: "12px"
+    padding: "20px"
+    border: "1px solid #2d3748"
+    
+  # Status indicators
+  status:
+    success_bg: "#064e3b"
+    success_border: "#10b981"
+    warning_bg: "#451a03"
+    warning_border: "#f59e0b"
+    error_bg: "#450a0a"
+    error_border: "#ef4444"
+    
+  # Advanced gradients
+  gradients:
+    primary: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+    secondary: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)"
+    accent: "linear-gradient(135deg, #10b981 0%, #059669 100%)"
+    danger: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)"
+    
+  # Shadows
+  shadows:
+    small: "0 2px 8px rgba(0, 0, 0, 0.2)"
+    medium: "0 4px 20px rgba(0, 0, 0, 0.3)"
+    large: "0 8px 32px rgba(0, 0, 0, 0.4)"
+    colored: "0 8px 32px rgba(102, 126, 234, 0.3)"
+    
+  # Animation
+  animation:
+    duration_fast: "0.2s"
+    duration_normal: "0.3s"
+    duration_slow: "0.5s"
+    easing: "cubic-bezier(0.4, 0, 0.2, 1)" 

@@ -8,15 +8,13 @@ This application provides a web interface for:
 """
 
 import os
-import shutil
-import tempfile
 from typing import List, Optional, Tuple
 
 import gradio as gr
-import pandas as pd
+import torch
 
 from mukh.face_detection import FaceDetector
-from mukh.pipelines.deepfake_detection import DeepfakeDetectionPipeline
+from mukh.pipelines.deepfake_detection import PipelineDeepfakeDetection
 from mukh.reenactment import FaceReenactor
 
 
@@ -46,7 +44,7 @@ class GradioApp:
             detection_model: Model to use for detection
 
         Returns:
-            Tuple of (annotated_image_path, csv_path, results_text)
+            Tuple of (annotated_image_path, json_path, results_text)
         """
         try:
             # Debug: Print the selected model
@@ -74,13 +72,13 @@ class GradioApp:
             output_folder = os.path.join(
                 self.output_dir, "face_detection", detection_model
             )
-            csv_path = os.path.join(output_folder, "detections.csv")
+            json_path = os.path.join(output_folder, "detections.json")
 
-            # Detect faces - save CSV and annotated image by default
+            # Detect faces - save JSON and annotated image by default
             detections = detector.detect(
                 image_path=image_path,
-                save_csv=True,
-                csv_path=csv_path,
+                save_json=True,
+                json_path=json_path,
                 save_annotated=True,
                 output_folder=output_folder,
             )
@@ -117,7 +115,7 @@ class GradioApp:
                     if annotated_image_path and os.path.exists(annotated_image_path)
                     else None
                 ),
-                csv_path if True and os.path.exists(csv_path) else None,
+                json_path if True and os.path.exists(json_path) else None,
                 results_text,
             )
 
@@ -235,38 +233,31 @@ class GradioApp:
             else:
                 return None, "❌ **Error**: Please upload either an image or video file"
 
-            # Configure models based on selection
-            model_configs = []
-            model_weights = {}
+            # Configure models based on selection with weights
+            model_configs = {}
 
             if "resnet_inception" in models_to_use:
-                model_configs.append(
-                    {
-                        "name": "resnet_inception",
-                        "confidence_threshold": 0.4,
-                    }
-                )
-                model_weights["resnet_inception"] = 0.4
+                model_configs["resnet_inception"] = 0.5
 
             if "efficientnet" in models_to_use:
-                model_configs.append(
-                    {
-                        "name": "efficientnet",
-                        "net_model": "EfficientNetB4",
-                        "confidence_threshold": 0.6,
-                    }
-                )
-                model_weights["efficientnet"] = 0.3
+                model_configs["efficientnet"] = 0.5
 
-            # Normalize weights
-            total_weight = sum(model_weights.values())
+            # Check if at least one model is selected
+            if not model_configs:
+                return (
+                    None,
+                    "❌ **Error**: Please select at least one model to use for deepfake detection",
+                )
+
+            # Normalize weights to sum to 1.0
+            total_weight = sum(model_configs.values())
             if total_weight > 0:
-                model_weights = {k: v / total_weight for k, v in model_weights.items()}
+                model_configs = {k: v / total_weight for k, v in model_configs.items()}
 
             # Create pipeline
-            pipeline = DeepfakeDetectionPipeline(
+            pipeline = PipelineDeepfakeDetection(
                 model_configs=model_configs,
-                model_weights=model_weights,
+                device=None,  # Auto-detect device
                 confidence_threshold=confidence_threshold,
             )
 
@@ -276,28 +267,13 @@ class GradioApp:
             # Detect deepfakes - save all outputs by default
             result = pipeline.detect(
                 media_path=media_file,
-                save_csv=True,
-                save_annotated=True,
                 output_folder=output_folder,
+                save_csv=True,
                 num_frames=num_frames,
-                save_individual_results=True,
             )
 
-            # Find annotated media
+            # Find annotated media - for pipeline, check if individual model outputs exist
             annotated_media_path = None
-            if True:
-                media_name = os.path.basename(media_file)
-                name, ext = os.path.splitext(media_name)
-
-                # Check for video or image
-                if ext.lower() in [".mp4", ".avi", ".mov", ".mkv"]:
-                    annotated_media_path = os.path.join(
-                        output_folder, f"{name}_pipeline_annotated.mp4"
-                    )
-                else:
-                    annotated_media_path = os.path.join(
-                        output_folder, f"{name}_pipeline_annotated{ext}"
-                    )
 
             # Create enhanced results text with better formatting
             def get_confidence_bar(confidence, width=20):
@@ -323,18 +299,20 @@ class GradioApp:
                     else:
                         return "🟠 **UNCERTAIN**"
 
-            if isinstance(result, list):  # Video results
-                deepfake_count = sum(1 for r in result if r.is_deepfake)
-                total_frames = len(result)
-                avg_confidence = sum(r.confidence for r in result) / len(result)
-                deepfake_percentage = (deepfake_count / total_frames) * 100
+            # The pipeline returns a boolean result (True for deepfake, False for real)
+            overall_is_deepfake = result
+            overall_status = "DEEPFAKE" if overall_is_deepfake else "AUTHENTIC"
+            overall_icon = "🚨" if overall_is_deepfake else "✅"
 
-                # Overall verdict
-                overall_is_deepfake = deepfake_count > total_frames * 0.5
-                overall_status = "DEEPFAKE" if overall_is_deepfake else "AUTHENTIC"
-                overall_icon = "🚨" if overall_is_deepfake else "✅"
+            # For pipeline results, we don't have individual frame confidences,
+            # so we'll create a summary based on the overall result
+            avg_confidence = (
+                confidence_threshold
+                if overall_is_deepfake
+                else (1.0 - confidence_threshold)
+            )
 
-                results_text = f"""# 🎬 **Video Analysis Results**
+            results_text = f"""# 🎬 **{media_type.title()} Analysis Results**
 
 ## 📊 **Summary**
 - **File**: `{os.path.basename(media_file)}`
@@ -347,98 +325,40 @@ class GradioApp:
 ## 🎯 **Overall Verdict**
 ### {overall_icon} **{overall_status}**
 
-**Confidence**: {get_confidence_bar(avg_confidence)}
-
----
-
-## 📈 **Detailed Statistics**
-- **Total Frames Analyzed**: {total_frames}
-- **Deepfake Frames Detected**: {deepfake_count}
-- **Deepfake Percentage**: {deepfake_percentage:.1f}%
-- **Average Confidence**: {avg_confidence:.3f}
-
----
-
-## 🔍 **Frame-by-Frame Analysis**
-"""
-
-                # Add frame-by-frame breakdown for first 10 frames
-                for i, frame_result in enumerate(result[:10]):
-                    status_icon = "🚨" if frame_result.is_deepfake else "✅"
-                    status_text = (
-                        "DEEPFAKE" if frame_result.is_deepfake else "AUTHENTIC"
-                    )
-
-                    results_text += f"""
-**Frame {i+1}**: {status_icon} {status_text}
-- **Confidence**: {get_confidence_bar(frame_result.confidence)}
-- **Model**: {frame_result.model_name}
-"""
-
-                if len(result) > 10:
-                    results_text += f"\n*... and {len(result) - 10} more frames*"
-
-                # Add final recommendation
-                results_text += f"""
-
----
-
-## 💡 **Recommendation**
-"""
-                if overall_is_deepfake:
-                    results_text += "⚠️ **This video shows strong indicators of being a deepfake.** Exercise caution when sharing or believing its content."
-                else:
-                    results_text += "✅ **This video appears to be authentic.** However, always verify content from multiple sources."
-
-            else:  # Single image result
-                status = "DEEPFAKE" if result.is_deepfake else "AUTHENTIC"
-                status_icon = "🚨" if result.is_deepfake else "✅"
-
-                results_text = f"""# 🖼️ **Image Analysis Results**
-
-## 📊 **Summary**
-- **File**: `{os.path.basename(media_file)}`
-- **Media Type**: {media_type.title()}
-- **Models Used**: {', '.join(models_to_use)}
-- **Confidence Threshold**: {confidence_threshold:.1%}
-
----
-
-## 🎯 **Verdict**
-### {status_icon} **{status}**
-
-**Confidence**: {get_confidence_bar(result.confidence)}
+**Pipeline Result**: {get_confidence_bar(avg_confidence)}
 
 ---
 
 ## 🔍 **Technical Details**
-- **Primary Model**: {result.model_name}
-- **Raw Confidence Score**: {result.confidence:.6f}
-- **Detection Algorithm**: Pipeline Ensemble
+- **Pipeline Models**: {', '.join(model_configs.keys())}
+- **Model Weights**: {model_configs}
+- **Detection Algorithm**: Weighted Ensemble Pipeline
+"""
+
+            if media_type == "video":
+                results_text += f"- **Frames Analyzed**: {num_frames}\n"
+
+            results_text += f"""
 
 ---
 
 ## 💡 **Recommendation**
 """
-                if result.is_deepfake:
-                    results_text += "⚠️ **This image shows indicators of being artificially generated or manipulated.** Verify authenticity through additional means."
-                else:
-                    results_text += "✅ **This image appears to be authentic.** However, sophisticated deepfakes may still evade detection."
+            if overall_is_deepfake:
+                results_text += "⚠️ **This media shows strong indicators of being a deepfake.** Exercise caution when sharing or believing its content."
+            else:
+                results_text += "✅ **This media appears to be authentic.** However, always verify content from multiple sources."
 
-                results_text += f"""
+            results_text += f"""
 
 ---
 
 ## ℹ️ **About This Analysis**
-This analysis uses multiple state-of-the-art AI models to detect potential deepfakes. While highly accurate, no detection system is 100% perfect. Always use critical thinking and verify important content through multiple sources.
+This analysis uses multiple state-of-the-art AI models in an ensemble pipeline to detect potential deepfakes. The pipeline combines predictions from {len(model_configs)} models with weighted averaging for improved accuracy. While highly accurate, no detection system is 100% perfect. Always use critical thinking and verify important content through multiple sources.
 """
 
             return (
-                (
-                    annotated_media_path
-                    if annotated_media_path and os.path.exists(annotated_media_path)
-                    else None
-                ),
+                annotated_media_path,  # Pipeline may not create annotated output
                 results_text,
             )
 
@@ -659,7 +579,9 @@ This analysis uses multiple state-of-the-art AI models to detect potential deepf
                             face_results_text = gr.Textbox(
                                 label="Detection Results", lines=10
                             )
-                            face_csv_file = gr.File(label="CSV Results", visible=False)
+                            face_json_file = gr.File(
+                                label="JSON Results", visible=False
+                            )
 
                     # Add this after the radio button definition
                     def on_model_change(model):
@@ -682,7 +604,7 @@ This analysis uses multiple state-of-the-art AI models to detect potential deepf
                             face_input_image,
                             face_detection_model,
                         ],
-                        outputs=[face_output_image, face_csv_file, face_results_text],
+                        outputs=[face_output_image, face_json_file, face_results_text],
                         show_progress=True,
                     )
 
