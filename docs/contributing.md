@@ -93,8 +93,83 @@ def detect_faces(image_path: str, confidence_threshold: float = 0.5) -> List[Det
 
 ### Testing
 
-Testing for mukh is under development.   
-For now ensure that all examples in the examples/ folder are running successfully.
+Mukh has a comprehensive testing framework designed to handle ML dependencies efficiently. Our testing setup includes:
+
+- **Unit Tests**: Fast tests using mocks for heavy ML dependencies
+- **Integration Tests**: End-to-end testing with real models
+- **Performance Tests**: Benchmarking for detector performance
+- **Automated Test Running**: Scripts and Make targets for easy execution
+
+#### Quick Start
+
+Run tests using any of these methods:
+
+```bash
+# Using the test script
+./scripts/run_tests.sh all
+
+# Using Make
+make test
+
+# Using pytest directly
+pytest tests/ -v
+```
+
+#### Test Categories
+
+- **Fast Tests** (default): `make test-fast` - Runs quickly using mocks
+- **Integration Tests**: `make test-integration` - Tests with real dependencies
+- **Coverage Reports**: `make test-coverage` - Generates HTML coverage reports
+- **Specific Components**: `make test-face` or `make test-deepfake`
+
+#### Writing Tests
+
+When adding new features:
+
+1. **Add Unit Tests**: Test your code logic with mocks
+   ```python
+   # tests/your_module/test_your_feature.py
+   from unittest.mock import patch
+   import pytest
+   
+   @patch("your_module.heavy_dependency")
+   def test_your_feature(mock_dependency):
+       # Test logic here
+       pass
+   ```
+
+2. **Add Integration Tests**: Test real functionality
+   ```python
+   @pytest.mark.integration
+   @pytest.mark.slow
+   def test_your_feature_integration():
+       # Real implementation test
+       pass
+   ```
+
+3. **Use Test Fixtures**: Leverage existing fixtures from `conftest.py`
+   ```python
+   def test_with_sample_image(sample_image, temp_dir):
+       # Use provided test fixtures
+       pass
+   ```
+
+#### Test Setup Details
+
+Our testing framework automatically mocks heavy dependencies (PyTorch, MediaPipe, OpenCV) to enable fast unit testing without requiring GPU or large model downloads. See `tests/conftest.py` for mock configurations.
+
+For comprehensive testing documentation, see our [Testing Setup Guide](TESTING_SETUP.md)).
+
+#### Ensuring Examples Work
+
+In addition to formal tests, ensure that all examples in the `examples/` folder run successfully:
+
+```bash
+# Test all examples
+for example in examples/*.py; do
+    python "$example" || echo "Failed: $example"
+done
+```
 
 ### Git Workflow
 
