@@ -35,9 +35,24 @@ The library is documented in detail, [click here](https://ishandutta0098.github.
 
 ## Installation
 
+Option 1: Using Conda
+
 ```bash
 conda create -n mukh-dev python=3.10 -y
 conda activate mukh-dev
+pip install mukh==0.1.14
+```
+
+Option 2: Using Python venv
+
+```bash
+python3 -m venv mukh-venv
+# Activate the virtual environmen
+# On Linux/macOS:
+source mukh-venv/bin/activate
+# On Windows:
+mukh-venv\Scripts\activate
+pip install --upgrade pip
 pip install mukh==0.1.14
 ```
 
